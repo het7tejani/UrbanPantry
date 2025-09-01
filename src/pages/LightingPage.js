@@ -57,26 +57,24 @@ const LightingPage = ({ onViewProduct }) => {
             <header className="page-header" style={{ backgroundImage: `url(${headerImage})`}}>
                 <h1 className="page-header-title">Modern Lighting</h1>
             </header>
-            <div className="container">
-                <div className="page-with-sidebar-layout">
-                     <FilterSidebar 
-                        initialFilters={filters} 
-                        onFilterChange={handleFilterChange} 
-                        isOpen={isFilterOpen} 
-                        onClose={() => setIsFilterOpen(false)}
-                        sortOrder={sortOrder}
-                        onSortChange={setSortOrder}
-                        showSort={true}
-                    />
-                     <main>
-                         <div className="mobile-controls-bar">
-                            <button className="filter-toggle-button" onClick={() => setIsFilterOpen(true)}>
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style={{width: '20px', height: '20px'}}><path fillRule="evenodd" d="M2.628 1.601C5.028 1.206 7.49 1 10 1s4.973.206 7.372.601a.75.75 0 0 1 .628.74v2.288a2.25 2.25 0 0 1-.659 1.59l-4.682 4.683a2.25 2.25 0 0 0-.659 1.59v3.037c0 .684-.31 1.33-.844 1.757l-1.937 1.55A.75.75 0 0 1 8 18.25v-5.757a2.25 2.25 0 0 0-.659-1.59L2.659 6.22A2.25 2.25 0 0 1 2 4.629V2.34a.75.75 0 0 1 .628-.74Z" clipRule="evenodd" /></svg>
-                                <span>Filter & Sort</span>
-                            </button>
-                        </div>
-                        {renderContent()}
-                    </main>
+            <div className="container page-with-sidebar">
+                 <FilterSidebar 
+                    initialFilters={filters} 
+                    onFilterChange={handleFilterChange} 
+                    isOpen={isFilterOpen} 
+                    onClose={() => setIsFilterOpen(false)}
+                    sortOrder={sortOrder}
+                    onSortChange={setSortOrder}
+                    showSort={true}
+                />
+                <div className="page-content">
+                    <div className="page-controls-bar">
+                        <button className="filter-toggle-button" onClick={() => setIsFilterOpen(true)}>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style={{width: '20px', height: '20px'}}><path fillRule="evenodd" d="M2.628 1.601C5.028 1.206 7.49 1 10 1s4.973.206 7.372.601a.75.75 0 0 1 .628.74v2.288a2.25 2.25 0 0 1-.659 1.59l-4.682 4.683a2.25 2.25 0 0 0-.659 1.59v3.037c0 .684-.31 1.33-.844 1.757l-1.937 1.55A.75.75 0 0 1 8 18.25v-5.757a2.25 2.25 0 0 0-.659-1.59L2.659 6.22A2.25 2.25 0 0 1 2 4.629V2.34a.75.75 0 0 1 .628-.74Z" clipRule="evenodd" /></svg>
+                            <span>Filter & Sort</span>
+                        </button>
+                    </div>
+                    {renderContent()}
                 </div>
             </div>
         </>

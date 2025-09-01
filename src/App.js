@@ -5,6 +5,7 @@ import Footer from './components/Footer';
 import ShoppingCart from './components/ShoppingCart';
 import Chatbot from './components/Chatbot';
 import { AuthContext } from './context/AuthContext';
+import { useCart } from './context/CartContext';
 
 // Page Components
 import HomePage from './pages/HomePage';
@@ -26,6 +27,7 @@ import AdminPage from './pages/AdminPage';
 const App = () => {
     const [location, setLocation] = useState(window.location.pathname + window.location.search);
     const { user } = useContext(AuthContext);
+    const { isCartOpen } = useCart();
 
     useEffect(() => {
         const handlePopState = () => {
@@ -117,7 +119,7 @@ const App = () => {
     const currentPage = getPageNameFromPath(location);
 
     return (
-        <div className={`app ${location.startsWith('/looks/') ? 'look-details-page' : ''}`}>
+        <div className={`app ${isCartOpen ? 'cart-is-open' : ''} ${location.startsWith('/looks/') ? 'look-details-page' : ''}`}>
             <AnnouncementBar />
             <Header currentPage={currentPage} navigate={navigate} />
             <main>

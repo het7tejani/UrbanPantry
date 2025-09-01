@@ -85,7 +85,7 @@ const ProductReviews = ({ productId, onReviewSubmitted }) => {
             {loading && <div className="loader-container"><div className="loader"></div></div>}
             {error && <p className="error-message">{error}</p>}
             
-            {!loading && reviews.length === 0 && <p>No reviews yet. Be the first to review this product!</p>}
+            {!loading && reviews.length === 0 && <p style={{textAlign: 'center'}}>No reviews yet. Be the first to review this product!</p>}
 
             {!loading && reviews.length > 0 && (
                 <div className="reviews-list">
@@ -102,7 +102,7 @@ const ProductReviews = ({ productId, onReviewSubmitted }) => {
                 </div>
             )}
             
-            {user && (
+            {user ? (
                 <div className="review-form-container">
                     <h3>Write a Review</h3>
                     {hasUserReviewed ? (
@@ -129,6 +129,13 @@ const ProductReviews = ({ productId, onReviewSubmitted }) => {
                             </button>
                         </form>
                     )}
+                </div>
+            ) : (
+                <div className="review-login-prompt">
+                    <h3>Write a Review</h3>
+                    <p>
+                        Please <a href={`/login?redirectTo=/products/${productId}`}>log in</a> or <a href={`/register?redirectTo=/products/${productId}`}>register</a> to submit a review.
+                    </p>
                 </div>
             )}
         </div>

@@ -35,8 +35,10 @@ export const WishlistProvider = ({ children }) => {
 
     const toggleWishlist = async (productId) => {
         if (!user || !token) {
-            alert('Please log in to add items to your wishlist.');
-            // or navigate to login page
+            if (window.confirm('Please log in to add items to your wishlist. Go to the login page?')) {
+                const currentPath = window.location.pathname + window.location.search;
+                window.location.href = `/login?redirectTo=${encodeURIComponent(currentPath)}`;
+            }
             return;
         }
 
