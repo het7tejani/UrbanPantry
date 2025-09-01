@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { fetchProducts } from '../api';
-import ProductCard from '../components/ProductCard';
+import ProductGrid from '../components/ProductGrid';
 import FilterSidebar from '../components/FilterSidebar';
 
 const BeddingPage = ({ onViewProduct }) => {
@@ -39,19 +39,6 @@ const BeddingPage = ({ onViewProduct }) => {
         setFilters(newFilters);
     };
 
-    const renderContent = () => {
-        if (loading) return <div className="loader-container"><div className="loader"></div></div>;
-        if (error) return <p className="error-message">{error}</p>;
-        if (products.length === 0) return <p style={{ textAlign: 'center' }}>No products match the current filters.</p>;
-        return (
-            <div className="product-grid">
-                {products.map(product => (
-                    <ProductCard key={product._id} product={product} onViewProduct={onViewProduct} />
-                ))}
-            </div>
-        );
-    };
-
     return (
         <>
             <header className="page-header" style={{ backgroundImage: `url(${headerImage})`}}>
@@ -74,7 +61,13 @@ const BeddingPage = ({ onViewProduct }) => {
                             <span>Filter & Sort</span>
                         </button>
                     </div>
-                    {renderContent()}
+                    <ProductGrid
+                        loading={loading}
+                        error={error}
+                        products={products}
+                        onViewProduct={onViewProduct}
+                        emptyStateOptions={{ title: "No Bedding Found", message: "Try adjusting your filters to find the perfect bedding." }}
+                    />
                 </div>
             </div>
         </>

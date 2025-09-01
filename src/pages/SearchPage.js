@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { searchProducts } from '../api';
-import ProductCard from '../components/ProductCard';
+import ProductGrid from '../components/ProductGrid';
 import FilterSidebar from '../components/FilterSidebar';
 
-const SearchPage = ({ onViewProduct }) => {
+const SearchPage = ({ onViewProduct, navigate }) => {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -45,23 +45,9 @@ const SearchPage = ({ onViewProduct }) => {
         setFilters(newFilters);
     };
 
-    const renderContent = () => {
-        if (loading) return <div className="loader-container"><div className="loader"></div></div>;
-        if (error) return <p className="error-message">{error}</p>;
-        if (products.length === 0 && query) {
-            return <p style={{textAlign: 'center'}}>No products found for "{query}".</p>;
-        }
-        if (products.length === 0 && !query) {
-             return <p style={{textAlign: 'center'}}>Please enter a search term to find products.</p>;
-        }
-        return (
-            <div className="product-grid">
-                {products.map(product => (
-                    <ProductCard key={product._id} product={product} onViewProduct={onViewProduct} />
-                ))}
-            </div>
-        );
-    };
+    const emptyStateOptions = query
+        ? { title: `No results for "${query}"`, message: "Try checking your spelling or using a different search term." }
+        : { title: "Search for Products", message: "Use the search bar in the header to find what you're looking for." };
 
     return (
         <div className="container page-with-sidebar">
@@ -82,7 +68,13 @@ const SearchPage = ({ onViewProduct }) => {
                         <span>Filter</span>
                     </button>
                 </div>
-                {renderContent()}
+                <ProductGrid
+                    loading={loading}
+                    error={error}
+                    products={products}
+                    onViewProduct={onViewProduct}
+                    emptyStateOptions={emptyStateOptions}
+                />
             </div>
         </div>
     );

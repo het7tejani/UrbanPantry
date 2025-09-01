@@ -203,16 +203,17 @@ export const loginUser = async (credentials) => {
 };
 
 // Chatbot API
-export const askChatbot = async (message, history) => {
+export const askChatbot = async (message, history, image = null) => {
     const response = await fetch(`${API_BASE_URL}/chatbot/query`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ message, history }),
+        body: JSON.stringify({ message, history, image }),
     });
     return handleResponse(response);
 };
+
 
 // Wishlist APIs
 export const fetchWishlist = async (token) => {
@@ -236,6 +237,47 @@ export const removeFromWishlist = async (productId, token) => {
         method: 'POST',
         headers: getAuthHeader(token),
         body: JSON.stringify({ productId }),
+    });
+    return handleResponse(response);
+};
+
+// Order APIs
+export const createOrder = async (orderData, token) => {
+    const response = await fetch(`${API_BASE_URL}/orders`, {
+        method: 'POST',
+        headers: getAuthHeader(token),
+        body: JSON.stringify(orderData),
+    });
+    return handleResponse(response);
+};
+
+export const getMyOrders = async (token) => {
+    const response = await fetch(`${API_BASE_URL}/orders/myorders`, {
+        headers: getAuthHeader(token, null),
+    });
+    return handleResponse(response);
+};
+
+export const getOrderById = async (orderId, token) => {
+    const response = await fetch(`${API_BASE_URL}/orders/${orderId}`, {
+        headers: getAuthHeader(token, null),
+    });
+    return handleResponse(response);
+};
+
+// Admin Order APIs
+export const fetchAllOrders = async (token) => {
+    const response = await fetch(`${API_BASE_URL}/orders`, {
+        headers: getAuthHeader(token, null),
+    });
+    return handleResponse(response);
+};
+
+export const updateOrderStatus = async (orderId, status, token) => {
+    const response = await fetch(`${API_BASE_URL}/orders/${orderId}/status`, {
+        method: 'PUT',
+        headers: getAuthHeader(token),
+        body: JSON.stringify({ status }),
     });
     return handleResponse(response);
 };

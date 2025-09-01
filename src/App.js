@@ -6,6 +6,7 @@ import ShoppingCart from './components/ShoppingCart';
 import Chatbot from './components/Chatbot';
 import { AuthContext } from './context/AuthContext';
 import { useCart } from './context/CartContext';
+import { ToastContainer } from './components/Toast';
 
 // Page Components
 import HomePage from './pages/HomePage';
@@ -23,6 +24,7 @@ import WishlistPage from './pages/WishlistPage';
 import ShopTheLookPage from './pages/ShopTheLookPage';
 import LookDetailsPage from './pages/LookDetailsPage';
 import AdminPage from './pages/AdminPage';
+import OrderDetailsPage from './pages/OrderDetailsPage';
 
 const App = () => {
     const [location, setLocation] = useState(window.location.pathname + window.location.search);
@@ -66,6 +68,11 @@ const App = () => {
             const lookId = path.split('/')[2];
             return <LookDetailsPage lookId={lookId} onViewProduct={handleViewProduct} />;
         }
+        
+        if (path.startsWith('/order/')) {
+            const orderId = path.split('/')[2];
+            return <OrderDetailsPage orderId={orderId} navigate={navigate} />;
+        }
 
         switch (path) {
             case '/kitchen':
@@ -88,7 +95,7 @@ const App = () => {
             case '/profile':
                 return user ? <ProfilePage navigate={navigate} /> : <LoginPage navigate={navigate} redirectTo="/profile" />;
             case '/search':
-                return <SearchPage onViewProduct={handleViewProduct} />;
+                return <SearchPage onViewProduct={handleViewProduct} navigate={navigate} />;
             case '/wishlist':
                 return <WishlistPage onViewProduct={handleViewProduct} navigate={navigate} />;
             case '/admin':
@@ -103,6 +110,7 @@ const App = () => {
         const page = path.split('?')[0];
         if (page.startsWith('/products/')) return 'Product';
         if (page.startsWith('/looks/')) return 'Shop the Look';
+        if (page.startsWith('/order/')) return 'Order Details';
         if (page.startsWith('/admin')) return 'Admin';
         if (page === '/') return 'Home';
 
@@ -128,6 +136,7 @@ const App = () => {
             <Footer navigate={navigate} />
             <ShoppingCart navigate={navigate} />
             <Chatbot navigate={navigate} />
+            <ToastContainer />
         </div>
     );
 };

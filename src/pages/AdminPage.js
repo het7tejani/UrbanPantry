@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import ProductManager from '../components/admin/ProductManager';
 import LookManager from '../components/admin/LookManager';
 import TestimonialManager from '../components/admin/TestimonialManager';
-import './AdminPage.css';
+import OrderManager from '../components/admin/OrderManager';
+
 
 const AdminPage = ({ navigate }) => {
     const [activeTab, setActiveTab] = useState('products');
@@ -11,6 +12,8 @@ const AdminPage = ({ navigate }) => {
         switch(activeTab) {
             case 'products':
                 return <ProductManager navigate={navigate} />;
+            case 'orders':
+                return <OrderManager />;
             case 'looks':
                 return <LookManager navigate={navigate} />;
             case 'testimonials':
@@ -31,6 +34,12 @@ const AdminPage = ({ navigate }) => {
                     onClick={() => setActiveTab('products')}
                 >
                     Manage Products
+                </button>
+                <button 
+                    className={`admin-nav-item ${activeTab === 'orders' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('orders')}
+                >
+                    Manage Orders
                 </button>
                 <button 
                     className={`admin-nav-item ${activeTab === 'looks' ? 'active' : ''}`}

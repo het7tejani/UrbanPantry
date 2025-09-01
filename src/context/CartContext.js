@@ -1,10 +1,12 @@
 import React, { useState, createContext, useContext, useMemo } from 'react';
+import { useToast } from './ToastContext';
 
 const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
     const [cartItems, setCartItems] = useState([]);
     const [isCartOpen, setIsCartOpen] = useState(false);
+    const { showToast } = useToast();
 
     const addToCart = (product, quantityToAdd = 1) => {
         setCartItems(prevItems => {
@@ -17,6 +19,7 @@ export const CartProvider = ({ children }) => {
             return [...prevItems, { ...product, quantity: quantityToAdd }];
         });
         setIsCartOpen(true);
+        showToast(`${product.name} added to cart!`);
     };
 
     const removeFromCart = (productId) => {

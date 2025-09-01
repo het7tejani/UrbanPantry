@@ -1,18 +1,47 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
+import { createOrder } from '../api';
 
 const CheckoutPage = ({ navigate }) => {
     const { cartItems, cartTotal, clearCart } = useCart();
+    const { token } = useAuth();
+    const [error, setError] = useState('');
+    const [isProcessing, setIsProcessing] = useState(false);
+    
+    const [shippingAddress, setShippingAddress] = useState({
+        fullName: '',
+        address: '',
+        city: '',
+        zip: '',
+    });
 
-    const handlePlaceOrder = (e) => {
-        e.preventDefault();
-        // In a real application, you would process the payment here.
-        alert('Thank you for your order! Your items are on their way.');
-        clearCart();
-        navigate('/');
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setShippingAddress(prev => ({ ...prev, [name]: value }));
     };
 
-    // If the user navigates to checkout with an empty cart, show a message.
+    const handlePlaceOrder = async (e) => {
+        e.preventDefault();
+        setIsProcessing(true);
+        setError('');
+
+        const orderData = {
+            orderItems: cartItems,
+            shippingAddress: shippingAddress,
+            totalPrice: cartTotal,
+        };
+
+        try {
+            const createdOrder = await createOrder(orderData, token);
+            clearCart();
+            navigate(`/order/${createdOrder._id}`);
+        } catch (err) {
+            setError(err.message || 'Failed to place order. Please try again.');
+            setIsProcessing(false);
+        }
+    };
+
     if (cartItems.length === 0) {
         return (
             <div className="container">
@@ -29,32 +58,31 @@ const CheckoutPage = ({ navigate }) => {
         <div className="container checkout-page">
             <h1 className="section-title">Checkout</h1>
             <form className="checkout-grid" onSubmit={handlePlaceOrder}>
-                {/* Shipping & Payment Details Form */}
                 <div className="checkout-form">
                     <section>
                         <h2>Shipping Address</h2>
                         <div className="form-group">
-                            <label htmlFor="name">Full Name</label>
-                            <input type="text" id="name" name="name" required />
+                            <label htmlFor="fullName">Full Name</label>
+                            <input type="text" id="fullName" name="fullName" value={shippingAddress.fullName} onChange={handleInputChange} required />
                         </div>
                         <div className="form-group">
                             <label htmlFor="address">Address</label>
-                            <input type="text" id="address" name="address" required />
+                            <input type="text" id="address" name="address" value={shippingAddress.address} onChange={handleInputChange} required />
                         </div>
                         <div className="form-row">
                             <div className="form-group">
                                 <label htmlFor="city">City</label>
-                                <input type="text" id="city" name="city" required />
+                                <input type="text" id="city" name="city" value={shippingAddress.city} onChange={handleInputChange} required />
                             </div>
                             <div className="form-group">
                                 <label htmlFor="zip">ZIP Code</label>
-                                <input type="text" id="zip" name="zip" required />
+                                <input type="text" id="zip" name="zip" value={shippingAddress.zip} onChange={handleInputChange} required />
                             </div>
                         </div>
                     </section>
                     <section>
                         <h2>Payment Details</h2>
-                        <div className="form-group">
+                         <div className="form-group">
                             <label htmlFor="card-number">Card Number</label>
                             <input type="text" id="card-number" name="card-number" placeholder="•••• •••• •••• ••••" required />
                         </div>
@@ -71,7 +99,6 @@ const CheckoutPage = ({ navigate }) => {
                     </section>
                 </div>
 
-                {/* Order Summary */}
                 <aside className="order-summary">
                     <h2>Order Summary</h2>
                     <div className="summary-items">
@@ -89,7 +116,10 @@ const CheckoutPage = ({ navigate }) => {
                         <span>Total</span>
                         <span>${cartTotal.toFixed(2)}</span>
                     </div>
-                    <button type="submit" className="place-order-button">Place Order</button>
+                    {error && <p className="error-message" style={{textAlign: 'center', marginTop: '1rem'}}>{error}</p>}
+                    <button type="submit" className="place-order-button" disabled={isProcessing}>
+                        {isProcessing ? 'Placing Order...' : 'Place Order'}
+                    </button>
                 </aside>
             </form>
         </div>

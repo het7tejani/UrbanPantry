@@ -1,0 +1,33 @@
+/* online/src/styles/base.css */
+:root {
+  --primary-color: #1a1a1a;
+  --secondary-color: #555;
+  --background-color: #FFFFFF;
+  --surface-color: #f9f9f9;
+  --border-color: #eaeaea;
+  --wishlist-color: #d9534f;
+}
+
+body {
+  margin: 0;
+  font-family: 'Montserrat', sans-serif;
+  background-color: var(--background-color);
+  color: var(--primary-color);
+  overflow-x: hidden;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}

@@ -9,6 +9,7 @@ import User from '../models/userModel.js';
 import Wishlist from '../models/wishlistModel.js';
 import Look from '../models/lookModel.js';
 import Review from '../models/reviewModel.js';
+import Order from '../models/orderModel.js';
 
 
 const router = express.Router();
@@ -37,12 +38,16 @@ const authMiddleware = (req, res, next) => {
 };
 
 // --- ADMIN MIDDLEWARE ---
-const adminMiddleware = (req, res, next) => {
-    // This middleware must run *after* authMiddleware
-    if (req.user && req.user.role === 'admin') {
-        next();
-    } else {
-        res.status(403).json({ message: 'Forbidden: Admin access required.' });
+const adminMiddleware = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.user.id);
+        if (user && user.role === 'admin') {
+            next();
+        } else {
+            res.status(403).json({ message: 'Forbidden: Admin access required.' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Server error while verifying admin status.' });
     }
 };
 
@@ -566,6 +571,97 @@ router.delete('/testimonials/:id', authMiddleware, adminMiddleware, async (req, 
             return res.status(404).json({ msg: 'Testimonial not found' });
         }
         res.json({ msg: 'Testimonial removed' });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
+// --- ORDER ROUTES ---
+
+// POST /api/orders - Create a new order
+router.post('/orders', authMiddleware, async (req, res) => {
+    const { orderItems, shippingAddress, totalPrice } = req.body;
+    try {
+        if (orderItems && orderItems.length === 0) {
+            return res.status(400).json({ message: 'No order items' });
+        }
+        const order = new Order({
+            user: req.user.id,
+            orderItems: orderItems.map(item => ({
+                ...item,
+                product: item._id
+            })),
+            shippingAddress,
+            totalPrice,
+        });
+
+        const createdOrder = await order.save();
+        res.status(201).json(createdOrder);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
+// GET /api/orders/myorders - Get logged in user's orders
+router.get('/orders/myorders', authMiddleware, async (req, res) => {
+    try {
+        const orders = await Order.find({ user: req.user.id }).sort({ createdAt: -1 });
+        res.json(orders);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
+
+// GET /api/orders/:id - Get order by ID
+router.get('/orders/:id', authMiddleware, async (req, res) => {
+    try {
+        const order = await Order.findById(req.params.id).populate('user', 'fullName email');
+        
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+        
+        // Ensure user is authorized to see this order
+        const user = await User.findById(req.user.id);
+        if (order.user._id.toString() !== req.user.id && user.role !== 'admin') {
+            return res.status(401).json({ message: 'Not authorized to view this order' });
+        }
+
+        res.json(order);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
+
+// --- ADMIN ORDER ROUTES ---
+// GET /api/orders - Get all orders (ADMIN ONLY)
+router.get('/orders', authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+        const orders = await Order.find({}).populate('user', 'id fullName').sort({ createdAt: -1 });
+        res.json(orders);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
+// PUT /api/orders/:id/status - Update order status (ADMIN ONLY)
+router.put('/orders/:id/status', authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+        const order = await Order.findById(req.params.id);
+        if (order) {
+            order.status = req.body.status;
+            const updatedOrder = await order.save();
+            res.json(updatedOrder);
+        } else {
+            res.status(404).json({ message: 'Order not found' });
+        }
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');
