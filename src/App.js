@@ -27,6 +27,7 @@ import ShopTheLookPage from './pages/ShopTheLookPage';
 import LookDetailsPage from './pages/LookDetailsPage';
 import AdminPage from './pages/AdminPage';
 import OrderDetailsPage from './pages/OrderDetailsPage';
+import NewsletterSignup from './components/NewsletterSignup';
 
 const App = () => {
     const [location, setLocation] = useState(window.location.pathname + window.location.search);
@@ -148,6 +149,7 @@ const App = () => {
             <main>
                 {renderPage()}
             </main>
+            <NewsletterSignup navigate={navigate} />
             <Footer navigate={navigate} />
             <ShoppingCart navigate={navigate} />
             <Chatbot navigate={navigate} />

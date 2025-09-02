@@ -42,6 +42,13 @@ const CheckoutPage = ({ navigate }) => {
         }
     };
 
+    const getItemImage = (item) => {
+        if (item.images && item.images.length > 0) {
+            return item.images[0];
+        }
+        return item.image || ''; // Fallback for old data model
+    };
+
     if (cartItems.length === 0) {
         return (
             <div className="container">
@@ -104,7 +111,7 @@ const CheckoutPage = ({ navigate }) => {
                     <div className="summary-items">
                         {cartItems.map(item => (
                             <div key={item._id} className="summary-item">
-                                <img src={item.image} alt={item.name} className="summary-item-image" />
+                                <img src={getItemImage(item)} alt={item.name} className="summary-item-image" />
                                 <div className="summary-item-info">
                                     <span className="summary-item-name">{item.name} (x{item.quantity})</span>
                                     <span className="summary-item-price">₹{(item.price * item.quantity).toFixed(2)}</span>

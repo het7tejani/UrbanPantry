@@ -53,6 +53,8 @@ const QuickViewModal = ({ navigate }) => {
         return null;
     }
 
+    const imageUrl = product && ((product.images && product.images[0]) || product.image || '');
+
     return (
         <div className="modal-overlay" onClick={handleClose}>
             <div className="quick-view-modal" onClick={(e) => e.stopPropagation()}>
@@ -62,7 +64,7 @@ const QuickViewModal = ({ navigate }) => {
                 {product && (
                     <div className="quick-view-content">
                         <div className="quick-view-image-container">
-                            <img src={product.image} alt={product.name} className="quick-view-image" />
+                            <img src={imageUrl} alt={product.name} className="quick-view-image" />
                         </div>
                         <div className="quick-view-info">
                             <h1>{product.name}</h1>

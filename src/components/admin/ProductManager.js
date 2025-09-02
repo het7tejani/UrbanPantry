@@ -75,6 +75,13 @@ const ProductManager = ({ navigate }) => {
         setEditingProduct(null);
         loadProducts(); // Refresh list after create/edit
     };
+    
+    const getProductImage = (product) => {
+        if (product.images && product.images.length > 0) {
+            return product.images[0];
+        }
+        return product.image || ''; // Fallback for old data model
+    };
 
     const renderContent = () => {
         if (loading) return <div className="loader-container"><div className="loader"></div></div>;
@@ -95,7 +102,7 @@ const ProductManager = ({ navigate }) => {
                 <tbody>
                     {products.map(product => (
                         <tr key={product._id}>
-                            <td><img src={product.image} alt={product.name} className="admin-table-img" /></td>
+                            <td><img src={getProductImage(product)} alt={product.name} className="admin-table-img" /></td>
                             <td>{product.name}</td>
                             <td>{product.category}</td>
                             <td>₹{product.price.toFixed(2)}</td>

@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { fetchLookById } from '../api';
 import ProductCard from '../components/ProductCard';
+import { useCart } from '../context/CartContext';
+import { useToast } from '../context/ToastContext';
 
 const LookDetailsPage = ({ lookId, onViewProduct }) => {
     const [look, setLook] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const { addToCart, setIsCartOpen } = useCart();
+    const { showToast } = useToast();
 
     useEffect(() => {
         const getLookData = async () => {
@@ -27,6 +31,16 @@ const LookDetailsPage = ({ lookId, onViewProduct }) => {
         };
         getLookData();
     }, [lookId]);
+
+    const handleAddLookToCart = () => {
+        if (look && look.products) {
+            look.products.forEach(product => {
+                addToCart(product, 1);
+            });
+            showToast(`Added ${look.products.length} items from "${look.title}" to your cart.`);
+            setIsCartOpen(true);
+        }
+    };
 
     if (loading) {
         return (
@@ -57,7 +71,17 @@ const LookDetailsPage = ({ lookId, onViewProduct }) => {
             </header>
             
             <section className="container look-products-section">
-                <h2>Products in this Look</h2>
+                <div className="look-products-header">
+                    <h2>Products in this Look</h2>
+                    {look.products && look.products.length > 0 && (
+                        <button className="button add-look-to-cart-btn" onClick={handleAddLookToCart}>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                            </svg>
+                            Add Entire Look to Cart
+                        </button>
+                    )}
+                </div>
                 {look.products && look.products.length > 0 ? (
                     <div className="product-grid">
                         {look.products.map(product => (

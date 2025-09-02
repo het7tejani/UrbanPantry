@@ -61,6 +61,13 @@ const Chatbot = ({ navigate }) => {
         navigate(`/products/${productId}`);
     };
 
+    const getProductImage = (product) => {
+        if (product.images && product.images.length > 0) {
+            return product.images[0];
+        }
+        return product.image || ''; // Fallback for old data model
+    };
+
     return (
         <>
             <button className="chatbot-fab" onClick={() => setIsOpen(true)} aria-label="Open PantryPal Assistant">
@@ -84,10 +91,10 @@ const Chatbot = ({ navigate }) => {
                                 <div className="chat-product-list">
                                     {msg.products.map(product => (
                                         <div key={product._id} className="chat-product-card" onClick={() => handleProductClick(product._id)}>
-                                            <img src={product.image} alt={product.name} />
+                                            <img src={getProductImage(product)} alt={product.name} />
                                             <div className="chat-product-card-info">
                                                 <h4>{product.name}</h4>
-                                                <p>${product.price.toFixed(2)}</p>
+                                                <p>₹{product.price.toFixed(2)}</p>
                                             </div>
                                         </div>
                                     ))}

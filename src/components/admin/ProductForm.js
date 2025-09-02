@@ -5,7 +5,6 @@ import { useAuth } from '../../context/AuthContext';
 const INITIAL_STATE = {
     name: '',
     price: '',
-    image: '',
     category: 'Kitchen',
     featured: false,
     description: '',
@@ -13,6 +12,7 @@ const INITIAL_STATE = {
 
 const ProductForm = ({ product, onFormClose, logout, navigate }) => {
     const [formData, setFormData] = useState(INITIAL_STATE);
+    const [images, setImages] = useState(['']);
     const [details, setDetails] = useState([{ key: '', value: '' }]);
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState('');
@@ -23,14 +23,18 @@ const ProductForm = ({ product, onFormClose, logout, navigate }) => {
             setFormData({
                 name: product.name,
                 price: product.price,
-                image: product.image,
                 category: product.category,
                 featured: product.featured,
                 description: product.description,
             });
+            const imageSources = (product.images && product.images.length > 0) 
+                ? product.images 
+                : (product.image ? [product.image] : ['']);
+            setImages(imageSources);
             setDetails(product.details && product.details.length > 0 ? product.details : [{ key: '', value: '' }]);
         } else {
             setFormData(INITIAL_STATE);
+            setImages(['']);
             setDetails([{ key: '', value: '' }]);
         }
     }, [product]);
@@ -41,6 +45,20 @@ const ProductForm = ({ product, onFormClose, logout, navigate }) => {
             ...prev,
             [name]: type === 'checkbox' ? checked : value
         }));
+    };
+    
+    const handleImageChange = (index, value) => {
+        const newImages = [...images];
+        newImages[index] = value;
+        setImages(newImages);
+    };
+    
+    const addImageField = () => {
+        setImages([...images, '']);
+    };
+    
+    const removeImageField = (index) => {
+        setImages(images.filter((_, i) => i !== index));
     };
 
     const handleDetailChange = (index, e) => {
@@ -65,8 +83,15 @@ const ProductForm = ({ product, onFormClose, logout, navigate }) => {
         const finalProductData = {
             ...formData,
             price: parseFloat(formData.price),
-            details: details.filter(d => d.key.trim() && d.value.trim()) // Only include non-empty details
+            images: images.filter(img => img.trim()), // Filter out empty image fields
+            details: details.filter(d => d.key.trim() && d.value.trim()) 
         };
+
+        if (finalProductData.images.length === 0) {
+            setError('Please provide at least one image URL.');
+            setSubmitting(false);
+            return;
+        }
 
         try {
             if (product) {
@@ -117,14 +142,25 @@ const ProductForm = ({ product, onFormClose, logout, navigate }) => {
                         <label htmlFor="category">Category</label>
                     </div>
                     
-                    <div className="form-field full-width">
-                        <input type="text" id="image" name="image" value={formData.image} onChange={handleChange} required placeholder=" "/>
-                        <label htmlFor="image">Image URL</label>
-                    </div>
-                    
-                    <div className="form-field full-width">
+                     <div className="form-field full-width">
                         <textarea id="description" name="description" value={formData.description} onChange={handleChange} required rows="3" placeholder=" "></textarea>
                         <label htmlFor="description">Description</label>
+                    </div>
+
+                    <h3 className="admin-form-subtitle full-width">Product Images</h3>
+                    <div className="form-field full-width">
+                        {images.map((image, index) => (
+                            <div key={index} className="detail-row">
+                                <div className="form-field">
+                                    <input type="text" value={image} onChange={(e) => handleImageChange(index, e.target.value)} required={index === 0} placeholder=" " />
+                                    <label>Image URL {index + 1}{index === 0 && ' (Primary)'}</label>
+                                </div>
+                                {images.length > 1 && (
+                                    <button type="button" onClick={() => removeImageField(index)} className="admin-btn-delete-detail">-</button>
+                                )}
+                            </div>
+                        ))}
+                        <button type="button" onClick={addImageField} className="admin-btn-add-detail">+ Add Image</button>
                     </div>
 
                     <h3 className="admin-form-subtitle full-width">Product Details (Optional)</h3>

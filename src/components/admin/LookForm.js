@@ -87,6 +87,13 @@ const LookForm = ({ look, onFormClose, logout, navigate }) => {
             setSubmitting(false);
         }
     };
+    
+    const getProductImage = (product) => {
+        if (product.images && product.images.length > 0) {
+            return product.images[0];
+        }
+        return product.image || ''; // Fallback for old data model
+    };
 
     return (
         <div className="admin-form-modal-overlay" onClick={onFormClose}>
@@ -125,7 +132,7 @@ const LookForm = ({ look, onFormClose, logout, navigate }) => {
                                         checked={selectedProducts.includes(product._id)}
                                         onChange={handleProductSelect}
                                     />
-                                    <img src={product.image} alt={product.name} />
+                                    <img src={getProductImage(product)} alt={product.name} />
                                     <label htmlFor={`prod-${product._id}`}>{product.name}</label>
                                 </div>
                             )) : <p>No products available to select.</p>}

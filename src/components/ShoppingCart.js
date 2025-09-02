@@ -9,6 +9,13 @@ const ShoppingCart = ({ navigate }) => {
         navigate('/checkout');
     };
 
+    const getItemImage = (item) => {
+        if (item.images && item.images.length > 0) {
+            return item.images[0];
+        }
+        return item.image || ''; // Fallback for old data model
+    };
+
     return (
         <>
             <div className={`cart-overlay ${isCartOpen ? 'open' : ''}`} onClick={() => setIsCartOpen(false)}></div>
@@ -23,7 +30,7 @@ const ShoppingCart = ({ navigate }) => {
                     ) : (
                         cartItems.map(item => (
                             <div key={item._id} className="cart-item">
-                                <img src={item.image} alt={item.name} className="cart-item-image" />
+                                <img src={getItemImage(item)} alt={item.name} className="cart-item-image" />
                                 <div className="cart-item-info">
                                     <div>
                                         <p className="cart-item-name">{item.name}</p>

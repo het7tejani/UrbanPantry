@@ -29,11 +29,13 @@ const ProductCard = ({ product, onViewProduct }) => {
     };
 
     const isInWishlist = wishlist.includes(product._id);
+    
+    const imageUrl = (product.images && product.images[0]) || product.image || '';
 
     return (
         <div className="product-card" onClick={handleCardClick}>
             <div className="product-card-image-container">
-                <img src={product.image} alt={product.name} className="product-card-image" loading="lazy" />
+                <img src={imageUrl} alt={product.name} className="product-card-image" loading="lazy" />
                  <button 
                     className={`wishlist-button ${isInWishlist ? 'in-wishlist' : ''}`}
                     onClick={handleWishlistClick}

@@ -490,11 +490,11 @@ router.get('/products/:id', async (req, res) => {
 // POST /api/products - Create a new product (ADMIN ONLY)
 router.post('/products', authMiddleware, adminMiddleware, async (req, res) => {
     try {
-        const { name, price, image, category, featured, description, details } = req.body;
+        const { name, price, images, category, featured, description, details } = req.body;
         const newProduct = new Product({
             name,
             price,
-            image,
+            images,
             category,
             featured,
             description,
@@ -614,8 +614,11 @@ router.post('/orders', authMiddleware, async (req, res) => {
         const order = new Order({
             user: req.user.id,
             orderItems: orderItems.map(item => ({
-                ...item,
-                product: item._id
+                name: item.name,
+                quantity: item.quantity,
+                image: item.images[0], // Use the first image for the order snapshot
+                price: item.price,
+                product: item._id,
             })),
             shippingAddress,
             totalPrice,

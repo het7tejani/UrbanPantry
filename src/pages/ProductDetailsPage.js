@@ -12,6 +12,7 @@ const ProductDetailsPage = ({ productId, navigate }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [quantity, setQuantity] = useState(1);
+    const [selectedImage, setSelectedImage] = useState('');
     const { addToCart } = useCart();
     const { wishlist, toggleWishlist } = useWishlist();
 
@@ -23,6 +24,9 @@ const ProductDetailsPage = ({ productId, navigate }) => {
         try {
             const productData = await fetchProductById(productId);
             setProduct(productData);
+            
+            const mainImage = (productData.images && productData.images[0]) || productData.image || '';
+            setSelectedImage(mainImage);
 
             if (productData && productData.category) {
                 const relatedData = await fetchProducts(productData.category, false, 5);
@@ -81,13 +85,32 @@ const ProductDetailsPage = ({ productId, navigate }) => {
     if (!product) return null;
 
     const isInWishlist = wishlist.includes(product._id);
+    
+    const imageGallery = Array.isArray(product.images) && product.images.length > 0 
+        ? product.images 
+        : (product.image ? [product.image] : []);
 
     return (
         <div className="product-details-page">
             <div className="container">
                 <div className="product-details-grid">
-                    <div className="product-image-container">
-                        <img src={product.image} alt={product.name} className="product-main-image" />
+                    <div className="product-image-gallery">
+                        <div className="main-image-display">
+                            <img src={selectedImage} alt={product.name} className="product-main-image" />
+                        </div>
+                        {imageGallery.length > 1 && (
+                            <div className="thumbnail-list">
+                                {imageGallery.map((image, index) => (
+                                    <div 
+                                        key={index}
+                                        className={`thumbnail-item ${image === selectedImage ? 'active' : ''}`}
+                                        onClick={() => setSelectedImage(image)}
+                                    >
+                                        <img src={image} alt={`${product.name} thumbnail ${index + 1}`} />
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
                     <div className="product-info">
                         <h1>{product.name}</h1>
