@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import ProductCard from './ProductCard';
+import ProductCard from '../components/ProductCard';
 import { fetchProducts } from '../api';
 
 const FeaturedProducts = ({ onViewProduct }) => {
@@ -10,8 +10,8 @@ const FeaturedProducts = ({ onViewProduct }) => {
     useEffect(() => {
         const getFeaturedProducts = async () => {
             try {
-                const data = await fetchProducts('', true, 'featured', {}, 1, 4);
-                setProducts(data.products);
+                const data = await fetchProducts('', true, 4);
+                setProducts(Array.isArray(data) ? data : []);
             } catch (err) {
                 if (err instanceof TypeError && err.message === 'Failed to fetch') {
                     setError('Unable to connect to the server. Please try again later.');

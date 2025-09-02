@@ -20,9 +20,9 @@ const LookForm = ({ look, onFormClose, logout, navigate }) => {
         const getProducts = async () => {
             try {
                 // Fetch a large number of products for the admin form
-                const responseData = await fetchProducts('', false, '', {}, 1, 500);
+                const responseData = await fetchProducts('', false, 500);
                 // Handle both paginated object and direct array responses for robustness
-                const productsArray = responseData.products || (Array.isArray(responseData) ? responseData : []);
+                const productsArray = Array.isArray(responseData) ? responseData : [];
                 setAllProducts(productsArray);
             } catch (err) {
                 setError('Failed to load products for selection.');

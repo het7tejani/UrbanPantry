@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import ProductCard from './ProductCard';
+import ProductGrid from './ProductGrid';
 import { fetchProducts } from '../api';
 
 const FeaturedProducts = ({ onViewProduct }) => {
@@ -9,6 +9,8 @@ const FeaturedProducts = ({ onViewProduct }) => {
 
     useEffect(() => {
         const getFeaturedProducts = async () => {
+            setLoading(true);
+            setError(null);
             try {
                 const featuredProducts = await fetchProducts('', true, 4);
                 setProducts(featuredProducts);
@@ -26,30 +28,19 @@ const FeaturedProducts = ({ onViewProduct }) => {
         getFeaturedProducts();
     }, []);
 
-    if (loading) {
-        return (
-            <section className="container">
-                <h2 className="section-title">Best Sellers</h2>
-                <div className="loader-container"><div className="loader"></div></div>
-            </section>
-        );
-    }
-    
-    if (error) {
-        return (
-            <section className="container">
-                <h2 className="section-title">Best Sellers</h2>
-                <p className="error-message">{error}</p>
-            </section>
-        );
-    }
-
     return (
         <section className="container">
             <h2 className="section-title">Best Sellers</h2>
-            <div className="product-grid">
-                {products.map(product => <ProductCard key={product._id} product={product} onViewProduct={onViewProduct} />)}
-            </div>
+            <ProductGrid
+                loading={loading}
+                error={error}
+                products={products}
+                onViewProduct={onViewProduct}
+                emptyStateOptions={{
+                    title: "Our Best Sellers will be here soon!",
+                    message: "We're curating our collection. Check back shortly to see our top products."
+                }}
+            />
         </section>
     );
 };

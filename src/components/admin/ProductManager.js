@@ -29,9 +29,9 @@ const ProductManager = ({ navigate }) => {
                 navigate('/login?redirectTo=/admin');
                 return;
             }
-            const responseData = await fetchProducts('', false, '', {}, 1, 500);
+            const responseData = await fetchProducts('', false, 0, '', {});
             // Handle both paginated object and direct array responses for robustness
-            const productsArray = responseData.products || (Array.isArray(responseData) ? responseData : []);
+            const productsArray = Array.isArray(responseData) ? responseData : [];
             setProducts(productsArray);
         } catch (err) {
             if (!handleAuthError(err)) {
