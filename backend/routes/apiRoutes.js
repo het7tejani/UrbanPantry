@@ -450,12 +450,17 @@ router.post('/products/:id/reviews', authMiddleware, async (req, res) => {
 
         await review.save();
 
-        // Update product's average rating
-        const reviews = await Review.find({ product: productId });
-        product.numReviews = reviews.length;
-        product.rating = reviews.reduce((acc, item) => item.rating + acc, 0) / reviews.length;
+        // Recalculate and update product's average rating more safely
+        const allReviewsForProduct = await Review.find({ product: productId });
+        const numReviews = allReviewsForProduct.length;
+        const newRating = numReviews > 0
+            ? allReviewsForProduct.reduce((acc, item) => item.rating + acc, 0) / numReviews
+            : 0;
 
-        await product.save();
+        await Product.findByIdAndUpdate(productId, {
+            rating: newRating,
+            numReviews: numReviews,
+        });
         
         res.status(201).json({ message: 'Review added successfully' });
 

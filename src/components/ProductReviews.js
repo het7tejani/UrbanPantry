@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { fetchReviewsForProduct, createReview } from '../api';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import StarRating from './StarRating';
 
 const StarInput = ({ rating, setRating, disabled }) => {
@@ -33,6 +34,7 @@ const ProductReviews = ({ productId, onReviewSubmitted }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const { user, token } = useAuth();
+    const { showToast } = useToast();
     
     const hasUserReviewed = reviews.some(review => review.user?._id === user?.id);
 
@@ -68,6 +70,7 @@ const ProductReviews = ({ productId, onReviewSubmitted }) => {
         setSubmitError('');
         try {
             await createReview(productId, { rating, comment }, token);
+            showToast('Review submitted successfully!');
             setRating(0);
             setComment('');
             fetchReviews(); // Re-fetch reviews to show the new one
