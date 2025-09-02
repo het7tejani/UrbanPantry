@@ -107,14 +107,14 @@ const CheckoutPage = ({ navigate }) => {
                                 <img src={item.image} alt={item.name} className="summary-item-image" />
                                 <div className="summary-item-info">
                                     <span className="summary-item-name">{item.name} (x{item.quantity})</span>
-                                    <span className="summary-item-price">${(item.price * item.quantity).toFixed(2)}</span>
+                                    <span className="summary-item-price">₹{(item.price * item.quantity).toFixed(2)}</span>
                                 </div>
                             </div>
                         ))}
                     </div>
                     <div className="summary-total">
                         <span>Total</span>
-                        <span>${cartTotal.toFixed(2)}</span>
+                        <span>₹{cartTotal.toFixed(2)}</span>
                     </div>
                     {error && <p className="error-message" style={{textAlign: 'center', marginTop: '1rem'}}>{error}</p>}
                     <button type="submit" className="place-order-button" disabled={isProcessing}>

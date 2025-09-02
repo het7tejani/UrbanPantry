@@ -11,7 +11,7 @@ const INITIAL_STATE = {
     description: '',
 };
 
-const ProductForm = ({ product, onFormClose }) => {
+const ProductForm = ({ product, onFormClose, logout, navigate }) => {
     const [formData, setFormData] = useState(INITIAL_STATE);
     const [details, setDetails] = useState([{ key: '', value: '' }]);
     const [submitting, setSubmitting] = useState(false);
@@ -76,7 +76,12 @@ const ProductForm = ({ product, onFormClose }) => {
             }
             onFormClose();
         } catch (err) {
-            setError(err.message || 'An error occurred.');
+            if (err.message && (err.message.includes('Token is not valid') || err.message.includes('authorization denied'))) {
+                logout();
+                navigate('/login?redirectTo=/admin');
+            } else {
+                setError(err.message || 'An error occurred.');
+            }
         } finally {
             setSubmitting(false);
         }

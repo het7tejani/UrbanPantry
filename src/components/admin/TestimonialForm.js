@@ -7,7 +7,7 @@ const INITIAL_STATE = {
     author: '',
 };
 
-const TestimonialForm = ({ testimonial, onFormClose }) => {
+const TestimonialForm = ({ testimonial, onFormClose, logout, navigate }) => {
     const [formData, setFormData] = useState(INITIAL_STATE);
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState('');
@@ -42,7 +42,12 @@ const TestimonialForm = ({ testimonial, onFormClose }) => {
             }
             onFormClose();
         } catch (err) {
-            setError(err.message || 'An error occurred.');
+             if (err.message && (err.message.includes('Token is not valid') || err.message.includes('authorization denied'))) {
+                logout();
+                navigate('/login?redirectTo=/admin');
+            } else {
+                setError(err.message || 'An error occurred.');
+            }
         } finally {
             setSubmitting(false);
         }

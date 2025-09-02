@@ -13,7 +13,7 @@ const AdminPage = ({ navigate }) => {
             case 'products':
                 return <ProductManager navigate={navigate} />;
             case 'orders':
-                return <OrderManager />;
+                return <OrderManager navigate={navigate} />;
             case 'looks':
                 return <LookManager navigate={navigate} />;
             case 'testimonials':

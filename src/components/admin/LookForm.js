@@ -8,7 +8,7 @@ const INITIAL_STATE = {
     mainImage: '',
 };
 
-const LookForm = ({ look, onFormClose }) => {
+const LookForm = ({ look, onFormClose, logout, navigate }) => {
     const [formData, setFormData] = useState(INITIAL_STATE);
     const [selectedProducts, setSelectedProducts] = useState([]);
     const [allProducts, setAllProducts] = useState([]);
@@ -77,7 +77,12 @@ const LookForm = ({ look, onFormClose }) => {
             }
             onFormClose();
         } catch (err) {
-            setError(err.message || 'An error occurred.');
+            if (err.message && (err.message.includes('Token is not valid') || err.message.includes('authorization denied'))) {
+                logout();
+                navigate('/login?redirectTo=/admin');
+            } else {
+                setError(err.message || 'An error occurred.');
+            }
         } finally {
             setSubmitting(false);
         }

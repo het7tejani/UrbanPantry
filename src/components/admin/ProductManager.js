@@ -3,28 +3,44 @@ import { fetchProducts, deleteProduct } from '../../api';
 import { useAuth } from '../../context/AuthContext';
 import ProductForm from './ProductForm';
 
-const ProductManager = () => {
+const ProductManager = ({ navigate }) => {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [showForm, setShowForm] = useState(false);
     const [editingProduct, setEditingProduct] = useState(null);
-    const { token } = useAuth();
+    const { token, logout } = useAuth();
+
+    const handleAuthError = useCallback((err) => {
+        if (err.message && (err.message.includes('Token is not valid') || err.message.includes('authorization denied'))) {
+            logout();
+            navigate('/login?redirectTo=/admin');
+            return true;
+        }
+        return false;
+    }, [logout, navigate]);
 
     const loadProducts = useCallback(async () => {
         setLoading(true);
         setError('');
         try {
+            if (!token) {
+                logout();
+                navigate('/login?redirectTo=/admin');
+                return;
+            }
             const responseData = await fetchProducts('', false, '', {}, 1, 500);
             // Handle both paginated object and direct array responses for robustness
             const productsArray = responseData.products || (Array.isArray(responseData) ? responseData : []);
             setProducts(productsArray);
         } catch (err) {
-            setError(err.message || 'Failed to fetch products');
+            if (!handleAuthError(err)) {
+                setError(err.message || 'Failed to fetch products');
+            }
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [token, handleAuthError, logout, navigate]);
 
     useEffect(() => {
         loadProducts();
@@ -47,7 +63,9 @@ const ProductManager = () => {
                 await deleteProduct(productId, token);
                 loadProducts(); // Refresh list
             } catch (err) {
-                setError(err.message);
+                if (!handleAuthError(err)) {
+                    setError(err.message);
+                }
             }
         }
     };
@@ -80,7 +98,7 @@ const ProductManager = () => {
                             <td><img src={product.image} alt={product.name} className="admin-table-img" /></td>
                             <td>{product.name}</td>
                             <td>{product.category}</td>
-                            <td>${product.price.toFixed(2)}</td>
+                            <td>₹{product.price.toFixed(2)}</td>
                             <td>{product.featured ? 'Yes' : 'No'}</td>
                             <td>
                                 <div className="admin-actions">
@@ -104,7 +122,7 @@ const ProductManager = () => {
                 </button>
             </div>
             {renderContent()}
-            {showForm && <ProductForm product={editingProduct} onFormClose={handleFormClose} />}
+            {showForm && <ProductForm product={editingProduct} onFormClose={handleFormClose} logout={logout} navigate={navigate} />}
         </section>
     );
 };

@@ -3,26 +3,42 @@ import { fetchTestimonials, deleteTestimonial } from '../../api';
 import { useAuth } from '../../context/AuthContext';
 import TestimonialForm from './TestimonialForm';
 
-const TestimonialManager = () => {
+const TestimonialManager = ({ navigate }) => {
     const [testimonials, setTestimonials] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [showForm, setShowForm] = useState(false);
     const [editingTestimonial, setEditingTestimonial] = useState(null);
-    const { token } = useAuth();
+    const { token, logout } = useAuth();
+
+    const handleAuthError = useCallback((err) => {
+        if (err.message && (err.message.includes('Token is not valid') || err.message.includes('authorization denied'))) {
+            logout();
+            navigate('/login?redirectTo=/admin');
+            return true;
+        }
+        return false;
+    }, [logout, navigate]);
 
     const loadTestimonials = useCallback(async () => {
         setLoading(true);
         setError('');
         try {
+            if (!token) {
+                logout();
+                navigate('/login?redirectTo=/admin');
+                return;
+            }
             const allTestimonials = await fetchTestimonials();
             setTestimonials(allTestimonials);
         } catch (err) {
-            setError(err.message || 'Failed to fetch testimonials');
+            if (!handleAuthError(err)) {
+                setError(err.message || 'Failed to fetch testimonials');
+            }
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [token, handleAuthError, logout, navigate]);
 
     useEffect(() => {
         loadTestimonials();
@@ -45,7 +61,9 @@ const TestimonialManager = () => {
                 await deleteTestimonial(testimonialId, token);
                 loadTestimonials();
             } catch (err) {
-                setError(err.message);
+                 if (!handleAuthError(err)) {
+                    setError(err.message);
+                }
             }
         }
     };
@@ -96,7 +114,7 @@ const TestimonialManager = () => {
                 </button>
             </div>
             {renderContent()}
-            {showForm && <TestimonialForm testimonial={editingTestimonial} onFormClose={handleFormClose} />}
+            {showForm && <TestimonialForm testimonial={editingTestimonial} onFormClose={handleFormClose} logout={logout} navigate={navigate} />}
         </section>
     );
 };

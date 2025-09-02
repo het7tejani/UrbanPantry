@@ -3,26 +3,42 @@ import { fetchLooks, deleteLook } from '../../api';
 import { useAuth } from '../../context/AuthContext';
 import LookForm from './LookForm';
 
-const LookManager = () => {
+const LookManager = ({ navigate }) => {
     const [looks, setLooks] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [showForm, setShowForm] = useState(false);
     const [editingLook, setEditingLook] = useState(null);
-    const { token } = useAuth();
+    const { token, logout } = useAuth();
+
+    const handleAuthError = useCallback((err) => {
+        if (err.message && (err.message.includes('Token is not valid') || err.message.includes('authorization denied'))) {
+            logout();
+            navigate('/login?redirectTo=/admin');
+            return true;
+        }
+        return false;
+    }, [logout, navigate]);
 
     const loadLooks = useCallback(async () => {
         setLoading(true);
         setError('');
         try {
+            if (!token) {
+                logout();
+                navigate('/login?redirectTo=/admin');
+                return;
+            }
             const allLooks = await fetchLooks();
             setLooks(allLooks);
         } catch (err) {
-            setError(err.message || 'Failed to fetch looks');
+            if (!handleAuthError(err)) {
+                setError(err.message || 'Failed to fetch looks');
+            }
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [token, handleAuthError, logout, navigate]);
 
     useEffect(() => {
         loadLooks();
@@ -45,7 +61,9 @@ const LookManager = () => {
                 await deleteLook(lookId, token);
                 loadLooks();
             } catch (err) {
-                setError(err.message);
+                if (!handleAuthError(err)) {
+                    setError(err.message);
+                }
             }
         }
     };
@@ -98,7 +116,7 @@ const LookManager = () => {
                 </button>
             </div>
             {renderContent()}
-            {showForm && <LookForm look={editingLook} onFormClose={handleFormClose} />}
+            {showForm && <LookForm look={editingLook} onFormClose={handleFormClose} logout={logout} navigate={navigate} />}
         </section>
     );
 };

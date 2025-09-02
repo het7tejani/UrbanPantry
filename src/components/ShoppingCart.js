@@ -27,7 +27,7 @@ const ShoppingCart = ({ navigate }) => {
                                 <div className="cart-item-info">
                                     <div>
                                         <p className="cart-item-name">{item.name}</p>
-                                        <p className="cart-item-price">${item.price.toFixed(2)}</p>
+                                        <p className="cart-item-price">₹{item.price.toFixed(2)}</p>
                                     </div>
                                     <div className="cart-item-actions">
                                         <div className="quantity-control">
@@ -46,7 +46,7 @@ const ShoppingCart = ({ navigate }) => {
                     <footer className="cart-footer">
                         <div className="subtotal">
                             <span>Subtotal</span>
-                            <span>${cartTotal.toFixed(2)}</span>
+                            <span>₹{cartTotal.toFixed(2)}</span>
                         </div>
                         <button className="checkout-button" onClick={handleCheckout}>Proceed to Checkout</button>
                     </footer>

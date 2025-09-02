@@ -53,7 +53,7 @@ const OrderDetailsPage = ({ orderId, navigate }) => {
                     <p>Placed on {new Date(order.createdAt).toLocaleDateString()}</p>
                 </div>
                 <div>
-                    <span className="order-total-header">Total: ${order.totalPrice.toFixed(2)}</span>
+                    <span className="order-total-header">Total: ₹{order.totalPrice.toFixed(2)}</span>
                 </div>
             </div>
 
@@ -79,7 +79,7 @@ const OrderDetailsPage = ({ orderId, navigate }) => {
                                 <span onClick={() => navigate(`/products/${item.product}`)} className="order-item-name-link">{item.name}</span>
                                 <span>Qty: {item.quantity}</span>
                             </div>
-                            <span className="order-item-price">${(item.price * item.quantity).toFixed(2)}</span>
+                            <span className="order-item-price">₹{(item.price * item.quantity).toFixed(2)}</span>
                         </div>
                     ))}
                 </div>

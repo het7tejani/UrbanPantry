@@ -2,26 +2,42 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { fetchAllOrders, updateOrderStatus } from '../../api';
 import { useAuth } from '../../context/AuthContext';
 
-const OrderManager = () => {
+const OrderManager = ({ navigate }) => {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const { token } = useAuth();
+    const { token, logout } = useAuth();
     
     const ORDER_STATUSES = ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'];
+
+    const handleAuthError = useCallback((err) => {
+        if (err.message && (err.message.includes('Token is not valid') || err.message.includes('authorization denied'))) {
+            logout();
+            navigate('/login?redirectTo=/admin');
+            return true;
+        }
+        return false;
+    }, [logout, navigate]);
 
     const loadOrders = useCallback(async () => {
         setLoading(true);
         setError('');
         try {
+             if (!token) {
+                logout();
+                navigate('/login?redirectTo=/admin');
+                return;
+            }
             const allOrders = await fetchAllOrders(token);
             setOrders(allOrders);
         } catch (err) {
-            setError(err.message || 'Failed to fetch orders');
+            if (!handleAuthError(err)) {
+                setError(err.message || 'Failed to fetch orders');
+            }
         } finally {
             setLoading(false);
         }
-    }, [token]);
+    }, [token, handleAuthError, logout, navigate]);
 
     useEffect(() => {
         loadOrders();
@@ -37,7 +53,9 @@ const OrderManager = () => {
                 )
             );
         } catch (err) {
-            setError(`Failed to update status for order ${orderId}: ${err.message}`);
+            if (!handleAuthError(err)) {
+                setError(`Failed to update status for order ${orderId}: ${err.message}`);
+            }
         }
     };
 
@@ -62,7 +80,7 @@ const OrderManager = () => {
                             <td>{order._id}</td>
                             <td>{new Date(order.createdAt).toLocaleDateString()}</td>
                             <td>{order.user?.fullName || 'N/A'}</td>
-                            <td>${order.totalPrice.toFixed(2)}</td>
+                            <td>₹{order.totalPrice.toFixed(2)}</td>
                             <td>
                                 <select
                                     className="admin-order-status-select"

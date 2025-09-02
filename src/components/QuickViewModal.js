@@ -69,7 +69,7 @@ const QuickViewModal = ({ navigate }) => {
                             <div className="product-rating-summary">
                                 <StarRating rating={product.rating} text={`${product.numReviews || 0} reviews`} />
                             </div>
-                            <p className="price">${(product.price || 0).toFixed(2)}</p>
+                            <p className="price">₹{(product.price || 0).toFixed(2)}</p>
                             <p className="description">
                                 {product.description.substring(0, 150)}{product.description.length > 150 ? '...' : ''}
                             </p>

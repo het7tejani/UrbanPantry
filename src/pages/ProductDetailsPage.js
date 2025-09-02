@@ -94,7 +94,7 @@ const ProductDetailsPage = ({ productId, navigate }) => {
                         <div className="product-rating-summary">
                             <StarRating rating={product.rating} text={`${product.numReviews || 0} reviews`} />
                         </div>
-                        <p className="price">${(product.price || 0).toFixed(2)}</p>
+                        <p className="price">₹{(product.price || 0).toFixed(2)}</p>
 
                         <div className="actions">
                             <div className="quantity-selector">

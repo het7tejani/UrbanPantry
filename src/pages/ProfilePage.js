@@ -64,7 +64,7 @@ const ProfilePage = ({ navigate }) => {
                                 <tr key={order._id}>
                                     <td>#{order._id.substring(0, 8)}...</td>
                                     <td>{new Date(order.createdAt).toLocaleDateString()}</td>
-                                    <td>${order.totalPrice.toFixed(2)}</td>
+                                    <td>₹{order.totalPrice.toFixed(2)}</td>
                                     <td>
                                         <span className={`order-status-badge status-${order.status.toLowerCase()}`}>
                                             {order.status}

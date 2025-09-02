@@ -49,7 +49,7 @@ const ProductCard = ({ product, onViewProduct }) => {
                 <div className="product-card-rating">
                     {product.numReviews > 0 && <StarRating rating={product.rating} text={`(${product.numReviews})`} />}
                 </div>
-                <p className="product-card-price">${(product.price || 0).toFixed(2)}</p>
+                <p className="product-card-price">₹{(product.price || 0).toFixed(2)}</p>
             </div>
             <div className="product-card-action-bar">
                 <button className="button quick-view-button" onClick={handleQuickViewClick}>Quick View</button>
