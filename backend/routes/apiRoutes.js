@@ -349,10 +349,36 @@ router.get('/products/search', async (req, res) => {
 router.get('/products', async (req, res) => {
     try {
         const { category, featured, limit, sort, minPrice, maxPrice, rating } = req.query;
+
+        // Special logic for homepage's "Best Sellers" (when `featured` is true)
+        if (featured === 'true') {
+            const numLimit = parseInt(limit, 10) || 4;
+
+            // 1. Get explicitly featured products
+            let products = await Product.find({ featured: true })
+                .sort({ createdAt: -1 })
+                .limit(numLimit);
+            
+            // 2. If not enough featured products, get most recent ones to fill up
+            if (products.length < numLimit) {
+                const needed = numLimit - products.length;
+                const existingIds = products.map(p => p._id);
+                
+                const recentProducts = await Product.find({ _id: { $nin: existingIds } })
+                    .sort({ createdAt: -1 })
+                    .limit(needed);
+
+                // Combine and ensure we don't exceed the limit
+                products = [...products, ...recentProducts];
+            }
+            
+            return res.json(products);
+        }
+
+        // Original logic for all other product fetching
         const filter = {};
         
         if (category) filter.category = category;
-        if (featured) filter.featured = true;
         
         if (minPrice || maxPrice) {
             filter.price = {};
@@ -368,8 +394,7 @@ router.get('/products', async (req, res) => {
             sortOption.price = 1;
         } else if (sort === 'price-desc') {
             sortOption.price = -1;
-        } else { // Default or 'featured' sort
-            sortOption.featured = -1;
+        } else { // Default sort for category pages etc.
             sortOption.createdAt = -1;
         }
 
