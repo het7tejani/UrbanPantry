@@ -15,8 +15,10 @@ const ProductManager = () => {
         setLoading(true);
         setError('');
         try {
-            const allProducts = await fetchProducts();
-            setProducts(allProducts);
+            const responseData = await fetchProducts('', false, '', {}, 1, 500);
+            // Handle both paginated object and direct array responses for robustness
+            const productsArray = responseData.products || (Array.isArray(responseData) ? responseData : []);
+            setProducts(productsArray);
         } catch (err) {
             setError(err.message || 'Failed to fetch products');
         } finally {

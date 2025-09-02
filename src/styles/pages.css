@@ -65,12 +65,13 @@
   }
   .page-with-sidebar .filter-sidebar {
     position: sticky;
-    top: 100px;
+    top: 110px; /* 80px header + 30px margin */
+    z-index: 50;
     transform: none !important;
     max-width: 100%;
     width: auto;
     height: auto;
-    max-height: calc(100vh - 120px);
+    max-height: calc(100vh - 130px); /* 110px top + 20px bottom margin */
     overflow-y: auto;
     box-shadow: none;
     border: 1px solid var(--border-color);
@@ -1009,43 +1010,96 @@
     background-color: white;
     border-radius: 8px;
     width: 100%;
-    max-width: 700px;
+    max-width: 800px;
     max-height: 90vh;
     display: flex;
     flex-direction: column;
 }
 .admin-form-header {
-    padding: 1rem 1.5rem;
-    border-bottom: 1px solid var(--border-color);
+    padding: 1.5rem 2.5rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-shrink: 0;
 }
 .admin-form-header h2 {
     margin: 0;
-    font-size: 1.2rem;
-}
-.admin-form {
-    padding: 1.5rem;
-    overflow-y: auto;
-}
-.admin-form .form-group {
-    margin-bottom: 1.25rem;
-}
-.admin-form .form-group label {
+    font-size: 1.8rem;
     font-weight: 500;
 }
-.admin-form .form-row {
-    display: flex;
-    gap: 1rem;
+.admin-form {
+    padding: 2.5rem;
+    padding-top: 1rem;
+    overflow-y: auto;
 }
-.admin-form .form-row .form-group {
-    flex: 1;
+.admin-form.two-column-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem 2rem;
+}
+.admin-form.single-column {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+}
+.admin-form .form-field.full-width {
+    grid-column: 1 / -1;
+}
+.form-field {
+    position: relative;
+    margin-top: 1.5rem;
+}
+.form-field label {
+    position: absolute;
+    top: 1rem;
+    left: 0;
+    color: var(--secondary-color);
+    pointer-events: none;
+    transition: all 0.2s ease-out;
+    font-size: 1rem;
+}
+.form-field input,
+.form-field textarea,
+.form-field select {
+    width: 100%;
+    padding: 1rem 0 0.5rem;
+    border: none;
+    border-bottom: 1px solid #ccc;
+    background-color: transparent;
+    font-size: 1rem;
+    font-family: inherit;
+    outline: none;
+    position: relative;
+    z-index: 1;
+}
+.form-field input:focus,
+.form-field textarea:focus,
+.form-field select:focus {
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: calc(0.5rem - 1px);
+}
+.form-field input:focus + label,
+.form-field input:not(:placeholder-shown) + label,
+.form-field textarea:focus + label,
+.form-field textarea:not(:placeholder-shown) + label,
+.form-field select:valid + label {
+    top: -0.5rem;
+    left: 0;
+    font-size: 0.75rem;
+    color: var(--primary-color);
+}
+/* This is a fix for selects that may already have a value */
+.form-field select:not(:placeholder-shown) + label {
+    top: -0.5rem;
+    left: 0;
+    font-size: 0.75rem;
+    color: var(--primary-color);
 }
 .admin-form .form-group-checkbox {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    grid-column: 1 / -1;
 }
 .admin-form .form-group-checkbox input {
     width: auto;
@@ -1055,8 +1109,9 @@
     justify-content: flex-end;
     gap: 1rem;
     margin-top: 2rem;
-    padding-top: 1rem;
+    padding-top: 1.5rem;
     border-top: 1px solid var(--border-color);
+    grid-column: 1 / -1;
 }
 .admin-btn-cancel {
     background-color: var(--surface-color);
@@ -1064,14 +1119,19 @@
     border: 1px solid var(--border-color);
 }
 .admin-btn-save {
-    background-color: #4285F4;
+    background-color: var(--primary-color);
     color: white;
+    border: 1px solid var(--primary-color);
 }
 .admin-btn-save:disabled {
     background-color: #ccc;
+    border-color: #ccc;
     cursor: not-allowed;
 }
 .detail-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 1rem;
     align-items: center;
     margin-bottom: 0.5rem;
 }
@@ -1079,12 +1139,13 @@
     background-color: var(--surface-color);
     border: 1px solid var(--border-color);
     border-radius: 50%;
-    width: 30px;
-    height: 30px;
+    width: 40px;
+    height: 40px;
     line-height: 1;
     flex-shrink: 0;
     padding: 0;
     cursor: pointer;
+    margin-top: 1rem;
 }
 .admin-btn-add-detail {
     font-size: 0.9rem;
@@ -1094,9 +1155,10 @@
     cursor: pointer;
     color: var(--secondary-color);
     margin-top: 0.5rem;
+    justify-self: start;
 }
 .product-selection-list {
-    max-height: 200px;
+    max-height: 250px;
     overflow-y: auto;
     border: 1px solid var(--border-color);
     border-radius: 4px;
@@ -1115,21 +1177,35 @@
 .product-selection-item label {
     font-weight: normal;
     cursor: pointer;
+    flex: 1 1 0;
+    min-width: 0; /* Prevents text from overflowing flex container */
+    line-height: 1.4;
+    word-break: break-word;
 }
 .product-selection-item img {
     width: 40px;
     height: 40px;
     object-fit: cover;
     border-radius: 4px;
+    flex-shrink: 0;
 }
 .product-selection-item input[type="checkbox"] {
     width: 18px;
     height: 18px;
     cursor: pointer;
+    flex-shrink: 0;
 }
 .admin-order-status-select {
     padding: 0.5rem;
     border-radius: 4px;
     border: 1px solid var(--border-color);
     background-color: var(--surface-color);
+}
+.admin-form-subtitle {
+    font-size: 1.1rem;
+    font-weight: 500;
+    grid-column: 1 / -1;
+    margin: 1.5rem 0 0 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
 }

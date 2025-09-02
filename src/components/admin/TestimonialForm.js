@@ -55,19 +55,22 @@ const TestimonialForm = ({ testimonial, onFormClose }) => {
                     <h2>{testimonial ? 'Edit Testimonial' : 'Create New Testimonial'}</h2>
                     <button onClick={onFormClose} className="close-button">&times;</button>
                 </header>
-                <form onSubmit={handleSubmit} className="admin-form">
+                <form onSubmit={handleSubmit} className="admin-form single-column">
                     {error && <p className="error-message">{error}</p>}
-                    <div className="form-group">
+                    
+                    <div className="form-field">
+                        <input type="text" id="author" name="author" value={formData.author} onChange={handleChange} required placeholder=" " />
                         <label htmlFor="author">Author Name</label>
-                        <input type="text" name="author" value={formData.author} onChange={handleChange} required />
                     </div>
-                    <div className="form-group">
+                    
+                    <div className="form-field">
+                        <textarea id="quote" name="quote" value={formData.quote} onChange={handleChange} required rows="5" placeholder=" "></textarea>
                         <label htmlFor="quote">Quote</label>
-                        <textarea name="quote" value={formData.quote} onChange={handleChange} required rows="5"></textarea>
                     </div>
+
                     <div className="admin-form-actions">
-                        <button type="button" className="admin-btn-cancel" onClick={onFormClose}>Cancel</button>
-                        <button type="submit" className="admin-btn-save" disabled={submitting}>
+                        <button type="button" className="admin-btn admin-btn-cancel" onClick={onFormClose}>Cancel</button>
+                        <button type="submit" className="admin-btn admin-btn-save" disabled={submitting}>
                             {submitting ? 'Saving...' : 'Save Testimonial'}
                         </button>
                     </div>

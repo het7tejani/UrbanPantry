@@ -11,7 +11,7 @@ const DecorPage = ({ onViewProduct }) => {
     const [filters, setFilters] = useState({ minPrice: '', maxPrice: '', rating: 0 });
     const [isFilterOpen, setIsFilterOpen] = useState(false);
 
-    const headerImage = 'https://images.unsplash.com/photo-1534349762234-2a68e0a13e5e?q=80&w=1600&auto=format&fit=crop';
+    const headerImage = 'https://images.unsplash.com/photo-1534349762230-e0cadf78f5da?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTR8fGRlY29yfGVufDB8fDB8fHww';
 
     useEffect(() => {
         const getProducts = async () => {

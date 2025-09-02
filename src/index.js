@@ -5,6 +5,7 @@ import { CartProvider } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext';
 import { WishlistProvider } from './context/WishlistContext';
 import { ToastProvider } from './context/ToastContext';
+import { QuickViewProvider } from './context/QuickViewContext';
 import './styles/base.css';
 import './styles/components.css';
 import './styles/pages.css';
@@ -18,7 +19,9 @@ root.render(
             <ToastProvider>
                 <CartProvider>
                     <WishlistProvider>
-                        <App />
+                        <QuickViewProvider>
+                            <App />
+                        </QuickViewProvider>
                     </WishlistProvider>
                 </CartProvider>
             </ToastProvider>

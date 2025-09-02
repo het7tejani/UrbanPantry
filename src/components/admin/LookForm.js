@@ -10,7 +10,7 @@ const INITIAL_STATE = {
 
 const LookForm = ({ look, onFormClose }) => {
     const [formData, setFormData] = useState(INITIAL_STATE);
-    const [selectedProducts, setSelectedProducts] = useState([]); // This will now ONLY store string IDs
+    const [selectedProducts, setSelectedProducts] = useState([]);
     const [allProducts, setAllProducts] = useState([]);
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState('');
@@ -19,8 +19,11 @@ const LookForm = ({ look, onFormClose }) => {
     useEffect(() => {
         const getProducts = async () => {
             try {
-                const productsData = await fetchProducts();
-                setAllProducts(productsData);
+                // Fetch a large number of products for the admin form
+                const responseData = await fetchProducts('', false, '', {}, 1, 500);
+                // Handle both paginated object and direct array responses for robustness
+                const productsArray = responseData.products || (Array.isArray(responseData) ? responseData : []);
+                setAllProducts(productsArray);
             } catch (err) {
                 setError('Failed to load products for selection.');
             }
@@ -35,8 +38,6 @@ const LookForm = ({ look, onFormClose }) => {
                 description: look.description,
                 mainImage: look.mainImage,
             });
-            // FIX: Ensure selectedProducts is always an array of string IDs,
-            // regardless of whether look.products is populated with objects or just contains IDs.
             const productIds = (look.products || []).map(p => (typeof p === 'object' ? p._id : p));
             setSelectedProducts(productIds);
         } else {
@@ -54,10 +55,8 @@ const LookForm = ({ look, onFormClose }) => {
         const productId = e.target.value;
         setSelectedProducts(prevIds => {
             if (e.target.checked) {
-                // Add the new product ID if it's not already in the list
                 return prevIds.includes(productId) ? prevIds : [...prevIds, productId];
             } else {
-                // Remove the product ID
                 return prevIds.filter(id => id !== productId);
             }
         });
@@ -68,7 +67,6 @@ const LookForm = ({ look, onFormClose }) => {
         setSubmitting(true);
         setError('');
         
-        // The selectedProducts state is guaranteed to be an array of IDs.
         const finalLookData = { ...formData, products: selectedProducts };
 
         try {
@@ -92,23 +90,26 @@ const LookForm = ({ look, onFormClose }) => {
                     <h2>{look ? 'Edit Look' : 'Create New Look'}</h2>
                     <button onClick={onFormClose} className="close-button">&times;</button>
                 </header>
-                <form onSubmit={handleSubmit} className="admin-form">
-                    {error && <p className="error-message">{error}</p>}
-                    <div className="form-group">
+                <form onSubmit={handleSubmit} className="admin-form two-column-grid">
+                    {error && <p className="error-message full-width">{error}</p>}
+
+                    <div className="form-field">
+                        <input type="text" id="title" name="title" value={formData.title} onChange={handleChange} required placeholder=" " />
                         <label htmlFor="title">Look Title</label>
-                        <input type="text" name="title" value={formData.title} onChange={handleChange} required />
                     </div>
-                    <div className="form-group">
+                    
+                    <div className="form-field">
+                        <input type="text" id="mainImage" name="mainImage" value={formData.mainImage} onChange={handleChange} required placeholder=" " />
                         <label htmlFor="mainImage">Main Image URL</label>
-                        <input type="text" name="mainImage" value={formData.mainImage} onChange={handleChange} required />
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="description">Description</label>
-                        <textarea name="description" value={formData.description} onChange={handleChange} required rows="4"></textarea>
                     </div>
 
-                    <div className="form-group">
-                        <label>Select Products for this Look</label>
+                    <div className="form-field full-width">
+                         <textarea id="description" name="description" value={formData.description} onChange={handleChange} required rows="3" placeholder=" "></textarea>
+                         <label htmlFor="description">Description</label>
+                    </div>
+
+                    <div className="form-field full-width">
+                        <label style={{ position: 'static', transform: 'none', fontSize: '1rem', color: 'var(--primary-color)', marginBottom: '0.5rem' }}>Select Products for this Look</label>
                         <div className="product-selection-list">
                             {allProducts.length > 0 ? allProducts.map(product => (
                                 <div key={product._id} className="product-selection-item">
@@ -127,8 +128,8 @@ const LookForm = ({ look, onFormClose }) => {
                     </div>
                     
                     <div className="admin-form-actions">
-                        <button type="button" className="admin-btn-cancel" onClick={onFormClose}>Cancel</button>
-                        <button type="submit" className="admin-btn-save" disabled={submitting}>
+                        <button type="button" className="admin-btn admin-btn-cancel" onClick={onFormClose}>Cancel</button>
+                        <button type="submit" className="admin-btn admin-btn-save" disabled={submitting}>
                             {submitting ? 'Saving...' : 'Save Look'}
                         </button>
                     </div>

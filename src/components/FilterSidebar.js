@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const RATING_LEVELS = [
     { value: 4, label: '4 Stars & Up' },
@@ -12,6 +12,12 @@ const FilterSidebar = ({ initialFilters, onFilterChange, isOpen, onClose, sortOr
     const [maxPrice, setMaxPrice] = useState(initialFilters.maxPrice || '');
     const [rating, setRating] = useState(initialFilters.rating || 0);
 
+    useEffect(() => {
+        setMinPrice(initialFilters.minPrice || '');
+        setMaxPrice(initialFilters.maxPrice || '');
+        setRating(initialFilters.rating || 0);
+    }, [initialFilters]);
+
     const handleApply = () => {
         onFilterChange({
             minPrice: minPrice,
@@ -22,14 +28,18 @@ const FilterSidebar = ({ initialFilters, onFilterChange, isOpen, onClose, sortOr
     };
 
     const handleClear = () => {
+        // Clear local state for immediate feedback
         setMinPrice('');
         setMaxPrice('');
         setRating(0);
+        
+        // Notify parent to clear filters and trigger re-fetch
         onFilterChange({
             minPrice: '',
             maxPrice: '',
             rating: 0,
         });
+        
         if (onClose) onClose();
     };
 

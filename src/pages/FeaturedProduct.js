@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import ProductGrid from '../components/ProductGrid';
+import ProductCard from './ProductCard';
 import { fetchProducts } from '../api';
 
 const FeaturedProducts = ({ onViewProduct }) => {
@@ -10,8 +10,8 @@ const FeaturedProducts = ({ onViewProduct }) => {
     useEffect(() => {
         const getFeaturedProducts = async () => {
             try {
-                const featuredProducts = await fetchProducts('', true, 4);
-                setProducts(featuredProducts);
+                const data = await fetchProducts('', true, 'featured', {}, 1, 4);
+                setProducts(data.products);
             } catch (err) {
                 if (err instanceof TypeError && err.message === 'Failed to fetch') {
                     setError('Unable to connect to the server. Please try again later.');
@@ -26,19 +26,30 @@ const FeaturedProducts = ({ onViewProduct }) => {
         getFeaturedProducts();
     }, []);
 
+    if (loading) {
+        return (
+            <section className="container">
+                <h2 className="section-title">Best Sellers</h2>
+                <div className="loader-container"><div className="loader"></div></div>
+            </section>
+        );
+    }
+    
+    if (error) {
+        return (
+            <section className="container">
+                <h2 className="section-title">Best Sellers</h2>
+                <p className="error-message">{error}</p>
+            </section>
+        );
+    }
+
     return (
         <section className="container">
             <h2 className="section-title">Best Sellers</h2>
-            <ProductGrid 
-                loading={loading}
-                error={error}
-                products={products}
-                onViewProduct={onViewProduct}
-                emptyStateOptions={{
-                    title: "No Best Sellers Yet",
-                    message: "Check back soon to see our most popular items!"
-                }}
-            />
+            <div className="product-grid">
+                {products.map(product => <ProductCard key={product._id} product={product} onViewProduct={onViewProduct} />)}
+            </div>
         </section>
     );
 };

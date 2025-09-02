@@ -25,8 +25,8 @@ const ProductDetailsPage = ({ productId, navigate }) => {
             setProduct(productData);
 
             if (productData && productData.category) {
-                const relatedData = await fetchProducts(productData.category, false, 5);
-                const filteredRelated = relatedData
+                const relatedData = await fetchProducts(productData.category, false, '', {}, 1, 5);
+                const filteredRelated = (relatedData.products || [])
                     .filter(p => p._id !== productId)
                     .slice(0, 4);
                 setRelatedProducts(filteredRelated);

@@ -4,8 +4,10 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import ShoppingCart from './components/ShoppingCart';
 import Chatbot from './components/Chatbot';
+import QuickViewModal from './components/QuickViewModal';
 import { AuthContext } from './context/AuthContext';
 import { useCart } from './context/CartContext';
+import { useQuickView } from './context/QuickViewContext';
 import { ToastContainer } from './components/Toast';
 
 // Page Components
@@ -30,6 +32,7 @@ const App = () => {
     const [location, setLocation] = useState(window.location.pathname + window.location.search);
     const { user } = useContext(AuthContext);
     const { isCartOpen } = useCart();
+    const { quickViewProductId } = useQuickView();
 
     useEffect(() => {
         const handlePopState = () => {
@@ -40,6 +43,18 @@ const App = () => {
             window.removeEventListener('popstate', handlePopState);
         };
     }, []);
+
+    useEffect(() => {
+        if (isCartOpen || quickViewProductId) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        return () => {
+            document.body.style.overflow = '';
+        };
+    }, [isCartOpen, quickViewProductId]);
+
 
     const navigate = (path) => {
         window.history.pushState({}, '', path);
@@ -127,7 +142,7 @@ const App = () => {
     const currentPage = getPageNameFromPath(location);
 
     return (
-        <div className={`app ${isCartOpen ? 'cart-is-open' : ''} ${location.startsWith('/looks/') ? 'look-details-page' : ''}`}>
+        <div className={`app ${isCartOpen || quickViewProductId ? 'modal-is-open' : ''} ${location.startsWith('/looks/') ? 'look-details-page' : ''}`}>
             <AnnouncementBar />
             <Header currentPage={currentPage} navigate={navigate} />
             <main>
@@ -136,6 +151,7 @@ const App = () => {
             <Footer navigate={navigate} />
             <ShoppingCart navigate={navigate} />
             <Chatbot navigate={navigate} />
+            <QuickViewModal navigate={navigate} />
             <ToastContainer />
         </div>
     );
