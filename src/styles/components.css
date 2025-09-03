@@ -39,6 +39,7 @@
   top: 0;
   z-index: 100;
   backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   height: 80px;
 }
 .header .logo {
@@ -47,7 +48,7 @@
   cursor: pointer;
   letter-spacing: 1px;
 }
-.header nav {
+.header nav.desktop-nav {
   display: flex;
   gap: 2rem;
 }
@@ -60,7 +61,7 @@
   transition: color 0.3s;
   cursor: pointer;
 }
-.header .nav-link::after {
+.header nav.desktop-nav .nav-link::after {
   content: '';
   position: absolute;
   bottom: 0;
@@ -72,8 +73,8 @@
   transition: transform 0.3s ease;
   transform-origin: left;
 }
-.header .nav-link:hover::after,
-.header .nav-link.active::after {
+.header nav.desktop-nav .nav-link:hover::after,
+.header nav.desktop-nav .nav-link.active::after {
   transform: scaleX(1);
 }
 .header .header-icons {
@@ -479,21 +480,6 @@
   margin-top: 0.5rem;
   text-align: right;
 }
-@media (max-width: 992px) {
-  .newsletter-container {
-    flex-direction: column;
-    text-align: center;
-  }
-  .newsletter-form {
-    width: 100%;
-    max-width: 500px;
-    min-width: initial;
-    margin-top: 2rem;
-  }
-  .newsletter-disclaimer {
-    text-align: center;
-  }
-}
 
 /* Footer */
 .footer {
@@ -544,7 +530,7 @@
   right: 0;
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.5);
-  z-index: 1000;
+  z-index: 1200;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s ease;
@@ -557,7 +543,7 @@
   max-width: 400px;
   height: 100%;
   background-color: white;
-  z-index: 1001;
+  z-index: 1201;
   display: flex;
   flex-direction: column;
   box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
@@ -725,13 +711,7 @@
     padding: 2rem;
     overflow-y: auto;
 }
-@media (min-width: 768px) {
-    .quick-view-content {
-        grid-template-columns: 1fr 1fr;
-        gap: 2.5rem;
-        padding: 2.5rem;
-    }
-}
+
 .quick-view-image-container {
     background-color: var(--surface-color);
     border-radius: 8px;
@@ -905,56 +885,6 @@
   font-size: 0.9rem;
   background-color: white;
 }
-.filter-sidebar-mobile-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 1020;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.3s ease;
-}
-.filter-sidebar-mobile-overlay.open {
-  opacity: 1;
-  pointer-events: auto;
-}
-.filter-sidebar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  max-width: 320px;
-  height: 100%;
-  z-index: 1021;
-  background-color: white;
-  transform: translateX(-100%);
-  transition: transform 0.3s ease-in-out, filter 0.3s ease;
-  border-right: 1px solid var(--border-color);
-  display: flex;
-  flex-direction: column;
-}
-.filter-sidebar.open {
-  transform: translateX(0);
-}
-.filter-sidebar-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid var(--border-color);
-}
-.filter-sidebar-header h2 {
-  font-size: 1.2rem;
-  margin: 0;
-}
-.filter-sidebar-content {
-  padding: 1.5rem;
-  overflow-y: auto;
-  flex-grow: 1;
-}
 
 /* Skeleton Loader */
 @keyframes shimmer {
@@ -1073,4 +1003,152 @@
   font-size: 0.9rem;
   font-weight: 500;
   animation: toast-in 0.3s ease-out;
+}
+
+/* --- Responsive Styles --- */
+
+/* Mobile Header & Navigation */
+.mobile-nav-toggle {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    z-index: 1201;
+    padding: 0;
+}
+.mobile-nav-toggle svg {
+    width: 28px;
+    height: 28px;
+    stroke: var(--primary-color);
+}
+.mobile-nav-menu {
+    display: none;
+    position: fixed;
+    top: 80px; /* Below header */
+    left: 0;
+    width: 100%;
+    height: calc(100vh - 80px);
+    background-color: var(--background-color);
+    z-index: 1100;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+}
+.mobile-nav-menu.open {
+    display: flex;
+}
+.mobile-nav-menu nav {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    text-align: center;
+}
+.mobile-nav-menu .nav-link {
+    font-size: 1.5rem;
+}
+
+@media (max-width: 992px) {
+    .header nav.desktop-nav {
+        display: none;
+    }
+    .mobile-nav-toggle {
+        display: block;
+    }
+    .header .header-icons {
+        gap: 1rem;
+    }
+    .header .search-input {
+        width: 120px;
+    }
+    .header .search-input:focus {
+        width: 180px;
+    }
+    .wishlist-icon, .user-icon {
+      display: none; /* Hide on smaller tablets to save space */
+    }
+}
+
+@media (max-width: 768px) {
+    .newsletter-container {
+        flex-direction: column;
+        text-align: center;
+        gap: 2rem;
+    }
+    .newsletter-form {
+        width: 100%;
+        max-width: 500px;
+        min-width: initial;
+    }
+    .newsletter-text h2 {
+        font-size: 2rem;
+    }
+    .footer-content {
+        grid-template-columns: 1fr 1fr;
+        text-align: left;
+    }
+}
+
+
+@media (hover: none) and (pointer: coarse), (max-width: 992px) {
+    /* Make product card actions visible on touch/mobile */
+    .product-card:hover .product-card-image {
+        transform: none;
+    }
+    .product-card-main-info {
+        opacity: 1;
+    }
+    .product-card-hover-actions {
+        opacity: 1;
+        pointer-events: auto;
+        position: relative;
+        transform: none;
+        top: auto;
+        left: auto;
+        right: auto;
+        padding: 0.75rem 0 0;
+        flex-direction: row;
+        gap: 0.5rem;
+    }
+    .product-card-info {
+      flex-direction: column;
+      align-items: stretch;
+      min-height: auto;
+    }
+    .wishlist-button {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@media (max-width: 576px) {
+    .header {
+      padding: 0 1rem;
+    }
+    .header .search-form {
+      display: none; /* Hide search form on smallest screens for simplicity */
+    }
+    .header .wishlist-icon, .header .user-icon {
+      display: block; /* Show icons again if search is hidden */
+    }
+    .footer-content {
+        grid-template-columns: 1fr;
+    }
+    .cart-panel {
+      max-width: 90%;
+    }
+    .quick-view-modal {
+      padding: 1rem;
+      max-width: 95%;
+    }
+    .quick-view-content {
+      grid-template-columns: 1fr;
+      padding: 1.5rem;
+      max-height: 80vh;
+    }
+     .quick-view-info h1 {
+        font-size: 1.5rem;
+    }
+    .quick-view-info .price {
+        font-size: 1.25rem;
+    }
 }

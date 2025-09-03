@@ -62,10 +62,10 @@ const ProfilePage = ({ navigate }) => {
                         <tbody>
                             {orders.map(order => (
                                 <tr key={order._id}>
-                                    <td>#{order._id.substring(0, 8)}...</td>
-                                    <td>{new Date(order.createdAt).toLocaleDateString()}</td>
-                                    <td>₹{order.totalPrice.toFixed(2)}</td>
-                                    <td>
+                                    <td data-label="Order ID">#{order._id.substring(0, 8)}...</td>
+                                    <td data-label="Date">{new Date(order.createdAt).toLocaleDateString()}</td>
+                                    <td data-label="Total">₹{order.totalPrice.toFixed(2)}</td>
+                                    <td data-label="Status">
                                         <span className={`order-status-badge status-${order.status.toLowerCase()}`}>
                                             {order.status}
                                         </span>

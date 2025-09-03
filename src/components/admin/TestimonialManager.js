@@ -90,9 +90,9 @@ const TestimonialManager = ({ navigate }) => {
                 <tbody>
                     {testimonials.map(testimonial => (
                         <tr key={testimonial._id}>
-                            <td>{testimonial.author}</td>
-                            <td>"{testimonial.quote.substring(0, 120)}..."</td>
-                            <td>
+                            <td data-label="Author">{testimonial.author}</td>
+                            <td data-label="Quote">"{testimonial.quote.substring(0, 120)}..."</td>
+                            <td data-label="Actions">
                                 <div className="admin-actions">
                                     <button onClick={() => handleEdit(testimonial)} className="admin-btn admin-btn-edit">Edit</button>
                                     <button onClick={() => handleDelete(testimonial._id)} className="admin-btn admin-btn-delete">Delete</button>

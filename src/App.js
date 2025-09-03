@@ -33,6 +33,7 @@ const App = () => {
     const { user } = useContext(AuthContext);
     const { isCartOpen } = useCart();
     const { quickViewProductId } = useQuickView();
+    const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
 
     useEffect(() => {
         const handlePopState = () => {
@@ -45,7 +46,8 @@ const App = () => {
     }, []);
 
     useEffect(() => {
-        if (isCartOpen || quickViewProductId) {
+        // Centralized logic to prevent body scroll when any modal or overlay is open.
+        if (isCartOpen || quickViewProductId || isMobileNavOpen) {
             document.body.style.overflow = 'hidden';
         } else {
             document.body.style.overflow = '';
@@ -53,7 +55,7 @@ const App = () => {
         return () => {
             document.body.style.overflow = '';
         };
-    }, [isCartOpen, quickViewProductId]);
+    }, [isCartOpen, quickViewProductId, isMobileNavOpen]);
 
 
     const navigate = (path) => {
@@ -142,9 +144,14 @@ const App = () => {
     const currentPage = getPageNameFromPath(location);
 
     return (
-        <div className={`app ${isCartOpen || quickViewProductId ? 'modal-is-open' : ''} ${location.startsWith('/looks/') ? 'look-details-page' : ''}`}>
+        <div className={`app ${isCartOpen || quickViewProductId || isMobileNavOpen ? 'modal-is-open' : ''} ${location.startsWith('/looks/') ? 'look-details-page' : ''}`}>
             <AnnouncementBar />
-            <Header currentPage={currentPage} navigate={navigate} />
+            <Header 
+                currentPage={currentPage} 
+                navigate={navigate} 
+                isMobileNavOpen={isMobileNavOpen}
+                setIsMobileNavOpen={setIsMobileNavOpen}
+            />
             <main>
                 {renderPage()}
             </main>
