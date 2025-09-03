@@ -1,20 +1,15 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-import bcrypt from 'bcryptjs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
 import Product from './models/productModel.js';
-import Category from './models/categoryModel.js';
-import Testimonial from './models/testimonialModel.js';
 import User from './models/userModel.js';
-import Look from './models/lookModel.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // --- Environment Variable Loading ---
-// To make this more robust, we'll check for the .env file in a couple of common locations.
 const backendEnvPath = path.resolve(__dirname, '.env');
 const parentEnvPath = path.resolve(__dirname, '../.env');
 
@@ -28,16 +23,7 @@ if (fs.existsSync(backendEnvPath)) {
   console.log('[DEBUG] Seeder: No .env file found in common directories.');
 }
 
-
-// Admin user is essential for accessing the dashboard.
-const adminUserData = {
-    fullName: 'Admin User',
-    username: 'admin',
-    email: 'admin@urbanpantry.com',
-    password: 'adminpassword', // This will be hashed before saving
-    role: 'admin'
-};
-
+const adminPassword = 'urbanpantry';
 
 const seedDB = async () => {
     try {
@@ -45,43 +31,42 @@ const seedDB = async () => {
             throw new Error('MONGO_URI is not defined. Please ensure a .env file exists for seeding in either the /online or /online/backend directory.');
         }
         await mongoose.connect(process.env.MONGO_URI);
-        console.log('MongoDB connected for seeding check...');
+        console.log('MongoDB connected for seeding...');
 
-        // --- SAFETY CHECK ---
-        // Check if there are any users. If not, we assume the DB is fresh.
-        const userCount = await User.countDocuments();
+        // --- Ensure a clean slate for the admin user ---
+        const adminEmail = 'admin@urbanpantry.com';
+        console.log(`Checking for existing admin user with email: ${adminEmail}`);
+        
+        // Delete any existing admin user to ensure a fresh start and prevent hashing issues
+        await User.deleteMany({ email: adminEmail });
+        console.log(`Removed any old admin users to ensure a clean state.`);
 
-        if (userCount > 0) {
-            console.log('Database already contains users. Seeding script will NOT run to protect existing data.');
-            console.log('To start fresh, you must manually clear the database first.');
+        // Create a new admin user. The pre-save hook in the User model will hash the password correctly.
+        console.log('Creating a new, clean admin user...');
+        const adminUser = await User.create({
+            fullName: 'Admin User',
+            username: 'admin',
+            email: adminEmail,
+            password: adminPassword, // Pass the PLAIN text password here; the model will hash it.
+            role: 'admin'
+        });
+
+        console.log('\n--- ADMIN USER CREDENTIALS (FRESHLY CREATED) ---');
+        console.log(`Email:    ${adminUser.email}`);
+        console.log(`Password: ${adminPassword}`);
+        console.log('The admin user has been successfully reset. Please use these credentials.');
+        console.log('--------------------------------------------------\n');
+        
+        // Check if other data exists. This part remains non-destructive.
+        const productCount = await Product.countDocuments();
+        if (productCount > 0) {
+            console.log('Existing products found. Skipping any sample data seeding to protect your data.');
         } else {
-            console.log('Database appears empty. Seeding essential admin user...');
-
-            // Clear all collections to be certain of a fresh start
-            await Product.deleteMany({});
-            await Category.deleteMany({});
-            await Testimonial.deleteMany({});
-            await User.deleteMany({});
-            await Look.deleteMany({});
-            console.log('Cleared all collections.');
-            
-            // Hash password and create admin user
-            const salt = await bcrypt.genSalt(10);
-            const hashedPassword = await bcrypt.hash(adminUserData.password, salt);
-            await new User({ ...adminUserData, password: hashedPassword }).save();
-
-            console.log('Database seeded successfully with ONLY the admin user!');
-            console.log('---');
-            console.log('Admin user created with credentials:');
-            console.log('Email: admin@urbanpantry.com');
-            console.log('Password: adminpassword');
-            console.log('---');
-            console.log('All sample products, looks, and testimonials have been removed.');
-            console.log('Please use the Admin Dashboard to add your own content.');
+             console.log('No products found. The admin dashboard is ready for you to add new content.');
         }
 
     } catch (err) {
-        console.error('Error seeding database:', err.message);
+        console.error('Error during database seeding:', err.message);
     } finally {
         // Disconnect from the database
         await mongoose.disconnect();

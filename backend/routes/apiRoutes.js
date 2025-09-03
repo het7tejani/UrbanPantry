@@ -1,5 +1,4 @@
 import express from 'express';
-import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { GoogleGenAI, Type } from "@google/genai";
 import Product from '../models/productModel.js';
@@ -54,7 +53,7 @@ const adminMiddleware = async (req, res, next) => {
 
 // --- CHATBOT ROUTE ---
 router.post('/chatbot/query', async (req, res) => {
-    const { message } = req.body;
+    const { message, history } = req.body;
 
     try {
         const allProducts = await Product.find({});
@@ -68,12 +67,17 @@ router.post('/chatbot/query', async (req, res) => {
         
         const systemInstruction = `You are "PantryPal", a friendly and helpful AI personal shopper for UrbanPantry, an online store for modern home and kitchen products.
         Your goal is to help users find the perfect products by having a natural conversation.
-        You have been provided with the entire product catalog in JSON format.
+        You have been provided with the entire product catalog in JSON format below. Use it as your knowledge base to answer questions.
+        ---
+        PRODUCT CATALOG:
+        ${JSON.stringify(productCatalog)}
+        ---
         Based on the user's request, you MUST identify suitable products and recommend them.
         When you recommend products, you MUST include their "_id" in the "recommendedProductIds" array in your response.
         Do not recommend products that are not in the provided catalog.
         Keep your text response conversational, concise, and helpful. If you can't find a suitable product, say so politely.
-        If the user asks a general question not related to products, answer it helpfully in the context of being a shopping assistant.`;
+        If the user asks a general question not related to products, answer it helpfully in the context of being a shopping assistant.
+        Your response must be a JSON object matching the provided schema.`;
 
         const responseSchema = {
             type: Type.OBJECT,
@@ -89,14 +93,15 @@ router.post('/chatbot/query', async (req, res) => {
                 }
             }
         };
-
-        const finalPrompt = `My question is: "${message}". Here is the complete product catalog for your reference: ${JSON.stringify(productCatalog)}`;
         
-        const contents = [{ role: 'user', parts: [{ text: finalPrompt }] }];
-
+        // Combine history and new message for context.
+        const fullPrompt = (history || [])
+            .map(msg => `${msg.sender === 'ai' ? 'PantryPal' : 'User'}: ${msg.text}`)
+            .join('\n') + `\nUser: ${message}`;
+        
         const result = await ai.models.generateContent({
             model: 'gemini-2.5-flash',
-            contents: contents,
+            contents: fullPrompt, // Simplified to a single string prompt
             config: {
                 systemInstruction,
                 responseMimeType: "application/json",
@@ -120,7 +125,8 @@ router.post('/chatbot/query', async (req, res) => {
 
     } catch (error) {
         console.error('Error with Gemini API:', error);
-        res.status(500).json({ message: 'Sorry, I am having trouble connecting to my brain. Please try again later.' });
+        const errorMessage = error.message || 'Sorry, I am having trouble connecting to my brain. Please try again later.';
+        res.status(500).json({ message: errorMessage });
     }
 });
 
@@ -135,10 +141,9 @@ router.post('/users/register', async (req, res) => {
         if (user) {
             return res.status(400).json({ message: 'User with that email or username already exists' });
         }
-        user = new User({ fullName, username, email, password });
         
-        const salt = await bcrypt.genSalt(10);
-        user.password = await bcrypt.hash(password, salt);
+        // The password will be hashed automatically by the pre-save hook in the User model
+        user = new User({ fullName, username, email, password });
         
         await user.save();
         
@@ -157,14 +162,17 @@ router.post('/users/register', async (req, res) => {
 router.post('/users/login', async (req, res) => {
     const { email, password } = req.body;
     try {
-        let user = await User.findOne({ email });
+        // Explicitly select the password field to ensure it's included for comparison.
+        const user = await User.findOne({ email }).select('+password');
         if (!user) {
-            return res.status(400).json({ message: 'Invalid credentials' });
+            console.log(`[AUTH DEBUG] Login attempt for non-existent user: ${email}`);
+            return res.status(401).json({ message: 'Invalid credentials' });
         }
         
-        const isMatch = await bcrypt.compare(password, user.password);
+        const isMatch = await user.matchPassword(password);
         if (!isMatch) {
-            return res.status(400).json({ message: 'Invalid credentials' });
+            console.log(`[AUTH DEBUG] Password mismatch for user: ${email}`);
+            return res.status(401).json({ message: 'Invalid credentials' });
         }
         
         const payload = { user: { id: user.id, role: user.role } };
