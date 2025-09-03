@@ -1,13 +1,33 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import bcrypt from 'bcryptjs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import fs from 'fs';
 import Product from './models/productModel.js';
 import Category from './models/categoryModel.js';
 import Testimonial from './models/testimonialModel.js';
 import User from './models/userModel.js';
 import Look from './models/lookModel.js';
 
-dotenv.config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// --- Environment Variable Loading ---
+// To make this more robust, we'll check for the .env file in a couple of common locations.
+const backendEnvPath = path.resolve(__dirname, '.env');
+const parentEnvPath = path.resolve(__dirname, '../.env');
+
+if (fs.existsSync(backendEnvPath)) {
+  console.log('[DEBUG] Seeder: Loading .env file from backend directory.');
+  dotenv.config({ path: backendEnvPath });
+} else if (fs.existsSync(parentEnvPath)) {
+  console.log('[DEBUG] Seeder: Loading .env file from parent (online) directory.');
+  dotenv.config({ path: parentEnvPath });
+} else {
+  console.log('[DEBUG] Seeder: No .env file found in common directories.');
+}
+
 
 // Admin user is essential for accessing the dashboard.
 const adminUserData = {
@@ -21,6 +41,9 @@ const adminUserData = {
 
 const seedDB = async () => {
     try {
+        if (!process.env.MONGO_URI) {
+            throw new Error('MONGO_URI is not defined. Please ensure a .env file exists for seeding in either the /online or /online/backend directory.');
+        }
         await mongoose.connect(process.env.MONGO_URI);
         console.log('MongoDB connected for seeding check...');
 
