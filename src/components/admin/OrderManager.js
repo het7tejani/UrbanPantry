@@ -77,11 +77,11 @@ const OrderManager = ({ navigate }) => {
                 <tbody>
                     {orders.map(order => (
                         <tr key={order._id}>
-                            <td>{order._id}</td>
-                            <td>{new Date(order.createdAt).toLocaleDateString()}</td>
-                            <td>{order.user?.fullName || 'N/A'}</td>
-                            <td>₹{order.totalPrice.toFixed(2)}</td>
-                            <td>
+                            <td data-label="Order ID">{order._id}</td>
+                            <td data-label="Date">{new Date(order.createdAt).toLocaleDateString()}</td>
+                            <td data-label="Customer">{order.user?.fullName || 'N/A'}</td>
+                            <td data-label="Total">₹{order.totalPrice.toFixed(2)}</td>
+                            <td data-label="Status">
                                 <select
                                     className="admin-order-status-select"
                                     value={order.status}

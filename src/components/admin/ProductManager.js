@@ -102,12 +102,12 @@ const ProductManager = ({ navigate }) => {
                 <tbody>
                     {products.map(product => (
                         <tr key={product._id}>
-                            <td><img src={getProductImage(product)} alt={product.name} className="admin-table-img" /></td>
-                            <td>{product.name}</td>
-                            <td>{product.category}</td>
-                            <td>₹{product.price.toFixed(2)}</td>
-                            <td>{product.featured ? 'Yes' : 'No'}</td>
-                            <td>
+                            <td data-label="Image"><img src={getProductImage(product)} alt={product.name} className="admin-table-img" /></td>
+                            <td data-label="Name">{product.name}</td>
+                            <td data-label="Category">{product.category}</td>
+                            <td data-label="Price">₹{product.price.toFixed(2)}</td>
+                            <td data-label="Featured">{product.featured ? 'Yes' : 'No'}</td>
+                            <td data-label="Actions">
                                 <div className="admin-actions">
                                     <button onClick={() => handleEdit(product)} className="admin-btn admin-btn-edit">Edit</button>
                                     <button onClick={() => handleDelete(product._id)} className="admin-btn admin-btn-delete">Delete</button>

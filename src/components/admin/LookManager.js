@@ -91,10 +91,10 @@ const LookManager = ({ navigate }) => {
                 <tbody>
                     {looks.map(look => (
                         <tr key={look._id}>
-                            <td><img src={look.mainImage} alt={look.title} className="admin-table-img" /></td>
-                            <td>{look.title}</td>
-                            <td>{look.description.substring(0, 100)}...</td>
-                            <td>
+                            <td data-label="Image"><img src={look.mainImage} alt={look.title} className="admin-table-img" /></td>
+                            <td data-label="Title">{look.title}</td>
+                            <td data-label="Description">{look.description.substring(0, 100)}...</td>
+                            <td data-label="Actions">
                                 <div className="admin-actions">
                                     <button onClick={() => handleEdit(look)} className="admin-btn admin-btn-edit">Edit</button>
                                     <button onClick={() => handleDelete(look._id)} className="admin-btn admin-btn-delete">Delete</button>
