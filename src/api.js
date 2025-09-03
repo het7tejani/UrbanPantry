@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = 'https://urbanpantry-backend.onrender.com/api/';
 
 const handleResponse = async (response) => {
     // Try to parse the response as JSON, but fall back to text if it fails
