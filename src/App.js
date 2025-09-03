@@ -3,7 +3,6 @@ import AnnouncementBar from './components/AnnouncementBar';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import ShoppingCart from './components/ShoppingCart';
-import Chatbot from './components/Chatbot';
 import QuickViewModal from './components/QuickViewModal';
 import { AuthContext } from './context/AuthContext';
 import { useCart } from './context/CartContext';
@@ -152,7 +151,6 @@ const App = () => {
             <NewsletterSignup navigate={navigate} />
             <Footer navigate={navigate} />
             <ShoppingCart navigate={navigate} />
-            <Chatbot navigate={navigate} />
             <QuickViewModal navigate={navigate} />
             <ToastContainer />
         </div>
