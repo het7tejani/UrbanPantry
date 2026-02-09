@@ -137,13 +137,14 @@ router.post('/chatbot/query', async (req, res) => {
 router.post('/users/register', async (req, res) => {
     const { fullName, username, email, password } = req.body;
     try {
-        let user = await User.findOne({ $or: [{ email }, { username }] });
+        const lowerCaseEmail = email.toLowerCase();
+        let user = await User.findOne({ $or: [{ email: lowerCaseEmail }, { username }] });
         if (user) {
             return res.status(400).json({ message: 'User with that email or username already exists' });
         }
         
         // The password will be hashed automatically by the pre-save hook in the User model
-        user = new User({ fullName, username, email, password });
+        user = new User({ fullName, username, email: lowerCaseEmail, password });
         
         await user.save();
         
@@ -162,8 +163,9 @@ router.post('/users/register', async (req, res) => {
 router.post('/users/login', async (req, res) => {
     const { email, password } = req.body;
     try {
-        // Explicitly select the password field to ensure it's included for comparison.
-        const user = await User.findOne({ email }).select('+password');
+        // Find user by email, case-insensitively
+        const user = await User.findOne({ email: new RegExp('^' + email + '$', 'i') }).select('+password');
+        
         if (!user) {
             console.log(`[AUTH DEBUG] Login attempt for non-existent user: ${email}`);
             return res.status(401).json({ message: 'Invalid credentials' });
