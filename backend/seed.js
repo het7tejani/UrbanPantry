@@ -23,7 +23,7 @@ if (fs.existsSync(backendEnvPath)) {
   console.log('[DEBUG] Seeder: No .env file found in common directories.');
 }
 
-const adminPassword = 'urbanpantry';
+const adminPassword = 'admin123'; // Changed password for reset
 
 const seedDB = async () => {
     try {
